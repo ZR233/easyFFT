@@ -8,43 +8,18 @@
 #include <complex>
 #include "include/rfft.h"
 #include <vector>
+#include "PlanComplex.hpp"
 
-class Plan{
+
+
+
+class PlanFloat: public PlanComplex<float>{
 public:
-    Plan(int FFTDim, const int *shape, int numberBatches, RFFT_PlanType planType, RFFT_SIGN sign);
-    virtual ~Plan();
-
-protected:
-    RFFT_PlanType planType;
-    bool isUseFFTW;
-    std::vector<int> shape;
-    int numberBatches;
-    RFFT_SIGN sign;
-    void * originPlan= nullptr;
-
-    void chose_fftw_plan();
-    virtual void * getDataIn()=0;
-    virtual void * getDataOut()=0;
-};
-
-
-
-class PlanFloat: public Plan{
-public:
-    PlanFloat(int FFTDim, const int *shape, int numberBatches, RFFT_SIGN sign);
+    PlanFloat(int FFTDim, const int *shape, int numberBatches, RFFT_SIGN sign, FFT_DEVICE device);
     ~PlanFloat() override;
 
 private:
     PlanFloat()=default;
-
-protected:
-    void *getDataIn() override;
-
-    void *getDataOut() override;
-
-private:
-    std::vector<std::complex<float>> dataIn;
-    std::vector<std::complex<float>> dataOut;
 };
 
 
