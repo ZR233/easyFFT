@@ -4,12 +4,18 @@
 
 #include "Plan.h"
 #include "fftw3.h"
+#include <iostream>
 
 
-Plan::Plan PLAN_CONSTRUCTOR_PARAMS:
-    planType(planType),
+Plan::Plan (PLAN_CONSTRUCTOR_BASE,
+            void* data_in, uint64_t data_in_size,
+            void* data_out, uint64_t data_out_size):
     sign(sign),
-    device(device)
+    device(device),
+    data_in(data_in),
+    data_in_size(data_in_size),
+    data_out(data_out),
+    data_out_size(data_out_size)
 {
     this->shape.assign(FFTDim, 0);
 
@@ -18,16 +24,6 @@ Plan::Plan PLAN_CONSTRUCTOR_PARAMS:
     }
 
     this->numberBatches=numberBatches;
-
-    switch (device) {
-
-        case FFT_DEVICE_CPU:
-            chose_fftw_plan();
-            break;
-        case FFT_DEVICE_GPU:
-            break;
-    }
-
 }
 
 void Plan::chose_fftw_plan() {
@@ -40,37 +36,28 @@ void Plan::chose_fftw_plan() {
     int ostride =1, istride = 1;
     int sign;
     switch (this->sign) {
-        case RFFT_SIGN_FORWARD:
+        case FFT_SIGN_FORWARD:
             sign = FFTW_FORWARD;
             break;
-        case RFFT_SIGN_BACKWARD:
+        case FFT_SIGN_BACKWARD:
             sign = FFTW_BACKWARD;
             break;
     }
 
-    switch (planType) {
-        case RFFT_PLAN_TYPE_COMPLEX_FLOAT:{
-            auto dataIn =(fftwf_complex*) getDataIn();
-            auto dataOut =(fftwf_complex*) getDataOut();
-
-            originPlan = fftwf_plan_many_dft(
-                    (int)shape.size(),
-                    shape.data(),
-                    numberBatches,
-                    dataIn, inembed, istride, idist,
-                    dataOut, onembed, ostride, odist,
-                    sign,
-                    FFTW_MEASURE
+    originPlan = get_fftw_plan(
+            (int)shape.size(),
+                shape.data(),
+                numberBatches,
+                inembed, istride, idist,
+                onembed, ostride, odist,
+                sign,
+                FFTW_MEASURE
             );
-            break;
-        }
-        case RFFT_PLAN_TYPE_COMPLEX_DOUBLE:
-            break;
-    }
 }
 
 
 Plan::~Plan() {
+    std::cout<< "destroy Plan"<< std::endl;
     switch (device) {
         case FFT_DEVICE_CPU:
             destroy_cpu_plan();
@@ -82,19 +69,30 @@ Plan::~Plan() {
 }
 
 void Plan::destroy_cpu_plan() {
-    if (originPlan != nullptr){
-        switch (planType) {
-            case RFFT_PLAN_TYPE_COMPLEX_FLOAT:
-                fftwf_destroy_plan((fftwf_plan) originPlan);
-                break;
-            case RFFT_PLAN_TYPE_COMPLEX_DOUBLE:
-                fftw_destroy_plan((fftw_plan) originPlan);
-                break;
-
-        }
-    }
+//    if (originPlan != nullptr){
+//        switch (planType) {
+//            case RFFT_PLAN_TYPE_COMPLEX_FLOAT:
+//                fftwf_destroy_plan((fftwf_plan) originPlan);
+//                break;
+//            case RFFT_PLAN_TYPE_COMPLEX_DOUBLE:
+//                fftw_destroy_plan((fftw_plan) originPlan);
+//                break;
+//
+//        }
+//    }
 }
 
 void Plan::destroy_gpu_plan() {
 
+}
+
+void Plan::init() {
+    switch (device) {
+
+        case FFT_DEVICE_CPU:
+            chose_fftw_plan();
+            break;
+        case FFT_DEVICE_GPU:
+            break;
+    }
 }

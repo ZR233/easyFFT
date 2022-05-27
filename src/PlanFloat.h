@@ -6,20 +6,27 @@
 #define RFFTC_PLANFLOAT_H
 
 #include <complex>
-#include "include/rfft.h"
+#include "include/easyFFT.h"
 #include <vector>
 #include "PlanComplex.hpp"
 
 
-
-
-class PlanFloat: public PlanComplex<float>{
+class PlanFloat : public PlanComplex<float> {
 public:
-    PlanFloat(int FFTDim, const int *shape, int numberBatches, RFFT_SIGN sign, FFT_DEVICE device);
+    PlanFloat(PLAN_CONSTRUCTOR_BASE,
+              float *in_complex, uint64_t in_size,
+              float *out_complex, uint64_t out_size);
+
     ~PlanFloat() override;
 
-private:
-    PlanFloat()=default;
+protected:
+    void destroy_cpu_plan() override;
+
+    void *get_fftw_plan(FFTW_PLAN_PARAMS) override;
+
+    void destroy_gpu_plan() override;
+
+
 };
 
 
