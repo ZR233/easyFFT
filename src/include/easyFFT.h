@@ -14,7 +14,7 @@
 #endif
 
 #define FFT_PLAN_BODY void* ptr;
-#define PLAN_CONSTRUCTOR_BASE int FFTDim, const int *shape, int numberBatches, enum FFT_SIGN sign, enum FFT_DEVICE device
+#define PLAN_CONSTRUCTOR_BASE int32_t FFTDim, const int32_t *shape, int32_t numberBatches, enum FFT_SIGN sign, enum FFT_DEVICE device
 #define PLAN_CONSTRUCTOR_BASE_INPUT FFTDim, shape, numberBatches, sign, device
 
 
