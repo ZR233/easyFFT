@@ -1,4 +1,3 @@
-#pragma once
 #ifndef EASY_FFT_CL_UTILS_HPP
 #define EASY_FFT_CL_UTILS_HPP
 

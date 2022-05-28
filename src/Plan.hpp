@@ -42,10 +42,10 @@ public:
             data_out(data_out),
             data_out_size(data_out_size),
             fftw_plan_type(fftw_plan_type),
-            numberBatches(numberBatches){
-        this->shape.assign(FFTDim, 0);
+            number_batches(number_batches){
+        this->shape.assign(dim, 0);
 
-        for (int i = 0; i < FFTDim; ++i) {
+        for (int i = 0; i < dim; ++i) {
             this->shape[i] = shape[i];
         }
     }
@@ -64,7 +64,7 @@ public:
         for (auto len: this->shape) {
             need_size *= len;
         }
-        need_size *= numberBatches;
+        need_size *= number_batches;
 
         if (need_size != data_in_size){
             std::strstream s;
@@ -102,7 +102,7 @@ public:
 protected:
 
     std::vector<int> shape;
-    int numberBatches;
+    int number_batches;
     FFT_SIGN sign;
     FFT_DEVICE _device;
     void *originPlan = nullptr;
@@ -164,7 +164,7 @@ private:
         originPlan = get_fftw_plan(
                 (int)shape.size(),
                 shape.data(),
-                numberBatches,
+                number_batches,
                 inembed, istride, idist,
                 onembed, ostride, odist,
                 sign_,
@@ -260,7 +260,7 @@ private:
             configuration.size[0] = size;
         }
 
-        buffer_size = sizeof(T) * numberBatches;
+        buffer_size = sizeof(T) * number_batches;
         for (auto size: shape) {
             buffer_size *= size;
         }
@@ -275,7 +275,7 @@ private:
 
         configuration.buffer = &buffer;
         configuration.bufferSize = &buffer_size;
-        configuration.numberBatches = numberBatches;
+        configuration.numberBatches = number_batches;
 
         err = initializeVkFFT(vk_app.get(), configuration);
         handle_vk_err(err);

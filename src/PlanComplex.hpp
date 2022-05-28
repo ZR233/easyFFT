@@ -23,7 +23,7 @@
 //        for (auto len: this->shape) {
 //            need_size *= len;
 //        }
-//        need_size *= numberBatches;
+//        need_size *= number_batches;
 //
 //        if (need_size != in_size){
 //            std::strstream s;
