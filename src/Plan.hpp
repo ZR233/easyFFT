@@ -11,7 +11,7 @@
 #include <strstream>
 #include "Exception.hpp"
 #include "fftw3.h"
-#include "vkFFT/vkFFT.h"
+#include "vkFFT.h"
 #include "CLUtils.hpp"
 
 
@@ -173,7 +173,7 @@ private:
     }
     std::shared_ptr<VkFFTApplication>  vk_app;
 
-    static void handle_vk_err(cl_int err){
+    static void handle_vk_err(int err){
         if (err != VKFFT_SUCCESS){
             std::strstream s;
             s << "VKFFT error: (" << err << ")";
@@ -318,9 +318,13 @@ private:
     }
     void destroy_gpu_plan(){
         /* Release OpenCL memory objects. */
+
+#if VKFFT_BACKEND==3
         clReleaseMemObject( buffer);
         clReleaseCommandQueue( queue );
         clReleaseContext( ctx );
+#endif
+
         deleteVkFFT(vk_app.get());
     }
 };
