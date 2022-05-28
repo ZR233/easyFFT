@@ -8,23 +8,18 @@
 #include <complex>
 #include "include/easyFFT.h"
 #include <vector>
-#include "PlanComplex.hpp"
+#include "Plan.hpp"
 
-
-class PlanFloat : public PlanComplex<float> {
+class PlanFloat : public Plan<ComplexF> {
 public:
     PlanFloat(PLAN_CONSTRUCTOR_BASE,
-              float *in_complex, uint64_t in_size,
-              float *out_complex, uint64_t out_size);
+              ComplexF *in_complex, uint64_t in_size,
+              ComplexF *out_complex, uint64_t out_size);
 
     ~PlanFloat() override;
 
 protected:
-    void destroy_cpu_plan() override;
-
     void *get_fftw_plan(FFTW_PLAN_PARAMS) override;
-
-    void destroy_gpu_plan() override;
 
     void gpu_plan_execute() override;
 

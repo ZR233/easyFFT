@@ -675,7 +675,7 @@ intermediate-size prime factors (17-97).  This bug was fixed in FFTW
 
 This bug was fixed in FFTW 2.1.2.  The 2.1/2.1.1 MPI test programs crashed
 when using the MPICH implementation of MPI with the \courier{ch_p4\}
-device (TCP/IP); the transforms themselves worked fine.
+_device (TCP/IP); the transforms themselves worked fine.
 
 \question 25may:aixthreadbug FFTW 2.1.2's multi-threaded transforms don't work on AIX.
 

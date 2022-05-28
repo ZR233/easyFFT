@@ -11,14 +11,23 @@
 
 
 FFTPlanFloat fft_new_plan_float(PLAN_CONSTRUCTOR_BASE,
-                                float* in_complex, uint64_t in_size,
-                                float* out_complex, uint64_t out_size,
-                                FFT_ErrorCode* err){
-    *err = FFT_ErrorCode_OK;
+                                ComplexF* in_complex, uint64_t in_size,
+                                ComplexF* out_complex, uint64_t out_size,
+                                enum FFT_ERROR_CODE* err){
+    *err = FFT_ERROR_CODE_OK;
     FFTPlanFloat plan{};
-    plan.ptr = new PlanFloat(PLAN_CONSTRUCTOR_BASE_INPUT,
+    auto ptr = new PlanFloat(PLAN_CONSTRUCTOR_BASE_INPUT,
                              in_complex, in_size,
                              out_complex, out_size);
+
+    *err = FFT_ERROR_CODE_OK;
+    try{
+        ptr->init();
+    }catch (Exception &e){
+        *err = e.error_code;
+    }
+
+    plan.ptr = ptr;
     return plan;
 }
 
@@ -27,12 +36,12 @@ void fft_close_plan(FFTPlanFloat plan){
     delete (PlanFloat*)plan.ptr;
 }
 
-FFT_ErrorCode fft_execute(FFTPlanFloat plan){
+enum FFT_ERROR_CODE fft_execute(FFTPlanFloat plan){
     try{
         auto ptr = (PlanFloat*)plan.ptr;
         ptr->execute();
     }catch (Exception &e){
         return e.error_code;
     }
-    return FFT_ErrorCode_OK;
+    return FFT_ERROR_CODE_OK;
 }

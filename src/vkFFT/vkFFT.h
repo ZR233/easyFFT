@@ -68,19 +68,19 @@ typedef struct {
 	uint64_t size[3]; // WHD -system dimensions
 
 #if(VKFFT_BACKEND==0)
-	VkPhysicalDevice* physicalDevice;//pointer to Vulkan physical device, obtained from vkEnumeratePhysicalDevices
-	VkDevice* device;//pointer to Vulkan device, created with vkCreateDevice
+	VkPhysicalDevice* physicalDevice;//pointer to Vulkan physical _device, obtained from vkEnumeratePhysicalDevices
+	VkDevice* device;//pointer to Vulkan _device, created with vkCreateDevice
 	VkQueue* queue;//pointer to Vulkan queue, created with vkGetDeviceQueue
 	VkCommandPool* commandPool;//pointer to Vulkan command pool, created with vkCreateCommandPool
 	VkFence* fence;//pointer to Vulkan fence, created with vkCreateFence
 	uint64_t isCompilerInitialized;//specify if glslang compiler has been intialized before (0 - off, 1 - on). Default 0
 #elif(VKFFT_BACKEND==1)
-	CUdevice* device;//pointer to CUDA device, obtained from cuDeviceGet
+	CUdevice* device;//pointer to CUDA _device, obtained from cuDeviceGet
 	//CUcontext* context;//pointer to CUDA context, obtained from cuDeviceGet
 	cudaStream_t* stream;//pointer to streams (can be more than 1), where to execute the kernels
 	uint64_t num_streams;//try to submit CUDA kernels in multiple streams for asynchronous execution. Default 1
 #elif(VKFFT_BACKEND==2)
-	hipDevice_t* device;//pointer to HIP device, obtained from hipDeviceGet
+	hipDevice_t* device;//pointer to HIP _device, obtained from hipDeviceGet
 	//hipCtx_t* context;//pointer to HIP context, obtained from hipDeviceGet
 	hipStream_t* stream;//pointer to streams (can be more than 1), where to execute the kernels
 	uint64_t num_streams;//try to submit HIP kernels in multiple streams for asynchronous execution. Default 1
@@ -118,29 +118,29 @@ typedef struct {
 	VkBuffer* outputBuffer;//pointer to array of output buffers (or one buffer) used for write data to if isOutputFormatted is enabled
 	VkBuffer* kernel;//pointer to array of kernel buffers (or one buffer) used for read kernel data from if performConvolution is enabled
 #elif(VKFFT_BACKEND==1)
-	void** buffer;//pointer to device buffer used for computations
+	void** buffer;//pointer to _device buffer used for computations
 	void** tempBuffer;//needed if reorderFourStep is enabled to transpose the array. Same size as buffer. Default 0. Setting to non zero value enables manual user allocation
-	void** inputBuffer;//pointer to device buffer used to read data from if isInputFormatted is enabled
-	void** outputBuffer;//pointer to device buffer used to read data from if isOutputFormatted is enabled
-	void** kernel;//pointer to device buffer used to read kernel data from if performConvolution is enabled
+	void** inputBuffer;//pointer to _device buffer used to read data from if isInputFormatted is enabled
+	void** outputBuffer;//pointer to _device buffer used to read data from if isOutputFormatted is enabled
+	void** kernel;//pointer to _device buffer used to read kernel data from if performConvolution is enabled
 #elif(VKFFT_BACKEND==2)
-	void** buffer;//pointer to device buffer used for computations
+	void** buffer;//pointer to _device buffer used for computations
 	void** tempBuffer;//needed if reorderFourStep is enabled to transpose the array. Same size as buffer. Default 0. Setting to non zero value enables manual user allocation
-	void** inputBuffer;//pointer to device buffer used to read data from if isInputFormatted is enabled
-	void** outputBuffer;//pointer to device buffer used to read data from if isOutputFormatted is enabled
-	void** kernel;//pointer to device buffer used to read kernel data from if performConvolution is enabled
+	void** inputBuffer;//pointer to _device buffer used to read data from if isInputFormatted is enabled
+	void** outputBuffer;//pointer to _device buffer used to read data from if isOutputFormatted is enabled
+	void** kernel;//pointer to _device buffer used to read kernel data from if performConvolution is enabled
 #elif(VKFFT_BACKEND==3)
-	cl_mem* buffer;//pointer to device buffer used for computations
+	cl_mem* buffer;//pointer to _device buffer used for computations
 	cl_mem* tempBuffer;//needed if reorderFourStep is enabled to transpose the array. Same size as buffer. Default 0. Setting to non zero value enables manual user allocation
-	cl_mem* inputBuffer;//pointer to device buffer used to read data from if isInputFormatted is enabled
-	cl_mem* outputBuffer;//pointer to device buffer used to read data from if isOutputFormatted is enabled
-	cl_mem* kernel;//pointer to device buffer used to read kernel data from if performConvolution is enabled
+	cl_mem* inputBuffer;//pointer to _device buffer used to read data from if isInputFormatted is enabled
+	cl_mem* outputBuffer;//pointer to _device buffer used to read data from if isOutputFormatted is enabled
+	cl_mem* kernel;//pointer to _device buffer used to read kernel data from if performConvolution is enabled
 #elif(VKFFT_BACKEND==4)
-	void** buffer;//pointer to device buffer used for computations
+	void** buffer;//pointer to _device buffer used for computations
 	void** tempBuffer;//needed if reorderFourStep is enabled to transpose the array. Same size as buffer. Default 0. Setting to non zero value enables manual user allocation
-	void** inputBuffer;//pointer to device buffer used to read data from if isInputFormatted is enabled
-	void** outputBuffer;//pointer to device buffer used to read data from if isOutputFormatted is enabled
-	void** kernel;//pointer to device buffer used to read kernel data from if performConvolution is enabled
+	void** inputBuffer;//pointer to _device buffer used to read data from if isInputFormatted is enabled
+	void** outputBuffer;//pointer to _device buffer used to read data from if isOutputFormatted is enabled
+	void** kernel;//pointer to _device buffer used to read kernel data from if performConvolution is enabled
 #endif
 	uint64_t bufferOffset;//specify if VkFFT has to offset the first element position inside the buffer. In bytes. Default 0 
 	uint64_t tempBufferOffset;//specify if VkFFT has to offset the first element position inside the temp buffer. In bytes. Default 0 
@@ -215,7 +215,7 @@ typedef struct {
 	uint64_t devicePageSize;//in KB, the size of a page on the GPU. Setting to 0 disables local buffer split in pages
 	uint64_t localPageSize;//in KB, the size to split page into if sequence spans multiple devicePageSize pages
 
-	//automatically filled based on device info (still can be reconfigured by user):
+	//automatically filled based on _device info (still can be reconfigured by user):
 	uint64_t maxComputeWorkGroupCount[3]; // maxComputeWorkGroupCount from VkPhysicalDeviceLimits
 	uint64_t maxComputeWorkGroupSize[3]; // maxComputeWorkGroupCount from VkPhysicalDeviceLimits
 	uint64_t maxThreadsNum; //max number of threads from VkPhysicalDeviceLimits
@@ -257,33 +257,33 @@ typedef struct {
 	VkBuffer* outputBuffer;//pointer to array of output buffers (or one buffer) used for write data to if isOutputFormatted is enabled
 	VkBuffer* kernel;//pointer to array of kernel buffers (or one buffer) used for read kernel data from if performConvolution is enabled
 #elif(VKFFT_BACKEND==1)
-	void** buffer;//pointer to device buffer used for computations
+	void** buffer;//pointer to _device buffer used for computations
 	void** tempBuffer;//needed if reorderFourStep is enabled to transpose the array. Same size as buffer. Default 0. Setting to non zero value enables manual user allocation
-	void** inputBuffer;//pointer to device buffer used to read data from if isInputFormatted is enabled
-	void** outputBuffer;//pointer to device buffer used to read data from if isOutputFormatted is enabled
-	void** kernel;//pointer to device buffer used to read kernel data from if performConvolution is enabled
+	void** inputBuffer;//pointer to _device buffer used to read data from if isInputFormatted is enabled
+	void** outputBuffer;//pointer to _device buffer used to read data from if isOutputFormatted is enabled
+	void** kernel;//pointer to _device buffer used to read kernel data from if performConvolution is enabled
 #elif(VKFFT_BACKEND==2)
-	void** buffer;//pointer to device buffer used for computations
+	void** buffer;//pointer to _device buffer used for computations
 	void** tempBuffer;//needed if reorderFourStep is enabled to transpose the array. Same size as buffer. Default 0. Setting to non zero value enables manual user allocation
-	void** inputBuffer;//pointer to device buffer used to read data from if isInputFormatted is enabled
-	void** outputBuffer;//pointer to device buffer used to read data from if isOutputFormatted is enabled
-	void** kernel;//pointer to device buffer used to read kernel data from if performConvolution is enabled
+	void** inputBuffer;//pointer to _device buffer used to read data from if isInputFormatted is enabled
+	void** outputBuffer;//pointer to _device buffer used to read data from if isOutputFormatted is enabled
+	void** kernel;//pointer to _device buffer used to read kernel data from if performConvolution is enabled
 #elif(VKFFT_BACKEND==3)
 	cl_command_queue* commandQueue;//commandBuffer to which FFT is appended
 
-	cl_mem* buffer;//pointer to device buffer used for computations
+	cl_mem* buffer;//pointer to _device buffer used for computations
 	cl_mem* tempBuffer;//needed if reorderFourStep is enabled to transpose the array. Same size as buffer. Default 0. Setting to non zero value enables manual user allocation
-	cl_mem* inputBuffer;//pointer to device buffer used to read data from if isInputFormatted is enabled
-	cl_mem* outputBuffer;//pointer to device buffer used to read data from if isOutputFormatted is enabled
-	cl_mem* kernel;//pointer to device buffer used to read kernel data from if performConvolution is enabled
+	cl_mem* inputBuffer;//pointer to _device buffer used to read data from if isInputFormatted is enabled
+	cl_mem* outputBuffer;//pointer to _device buffer used to read data from if isOutputFormatted is enabled
+	cl_mem* kernel;//pointer to _device buffer used to read kernel data from if performConvolution is enabled
 #elif(VKFFT_BACKEND==4)
 	ze_command_list_handle_t* commandList;//commandList to which FFT is appended
 
-	void** buffer;//pointer to device buffer used for computations
+	void** buffer;//pointer to _device buffer used for computations
 	void** tempBuffer;//needed if reorderFourStep is enabled to transpose the array. Same size as buffer. Default 0. Setting to non zero value enables manual user allocation
-	void** inputBuffer;//pointer to device buffer used to read data from if isInputFormatted is enabled
-	void** outputBuffer;//pointer to device buffer used to read data from if isOutputFormatted is enabled
-	void** kernel;//pointer to device buffer used to read kernel data from if performConvolution is enabled
+	void** inputBuffer;//pointer to _device buffer used to read data from if isInputFormatted is enabled
+	void** outputBuffer;//pointer to _device buffer used to read data from if isOutputFormatted is enabled
+	void** kernel;//pointer to _device buffer used to read kernel data from if performConvolution is enabled
 #endif
 	//following parameters can be specified during kernels launch, if specifyOffsetsAtLaunch parameter was enabled during the initializeVkFFT call
 	uint64_t bufferOffset;//specify if VkFFT has to offset the first element position inside the buffer. In bytes. Default 0 
@@ -26361,7 +26361,7 @@ static inline VkFFTResult initializeVkFFT(VkFFTApplication* app, VkFFTConfigurat
 	if (inputLaunchConfiguration.doublePrecisionFloatMemory != 0)	app->configuration.doublePrecisionFloatMemory = inputLaunchConfiguration.doublePrecisionFloatMemory;
 	if (inputLaunchConfiguration.halfPrecision != 0)	app->configuration.halfPrecision = inputLaunchConfiguration.halfPrecision;
 	if (inputLaunchConfiguration.halfPrecisionMemoryOnly != 0)	app->configuration.halfPrecisionMemoryOnly = inputLaunchConfiguration.halfPrecisionMemoryOnly;
-	//set device parameters
+	//set _device parameters
 #if(VKFFT_BACKEND==0)
 	if (!inputLaunchConfiguration.isCompilerInitialized) {
 		if (!app->configuration.isCompilerInitialized) {
@@ -26600,7 +26600,7 @@ static inline VkFFTResult initializeVkFFT(VkFFTApplication* app, VkFFTConfigurat
 		return VKFFT_ERROR_FAILED_TO_GET_ATTRIBUTE;
 	}
 	app->configuration.sharedMemorySizeStatic = value;
-	//hipDeviceGetAttribute(&value, hipDeviceAttributeMaxSharedMemoryPerBlockOptin, app->configuration.device[0]);
+	//hipDeviceGetAttribute(&value, hipDeviceAttributeMaxSharedMemoryPerBlockOptin, app->configuration._device[0]);
 	app->configuration.sharedMemorySize = value;// (value > 65536) ? 65536 : value;
 	res = hipDeviceGetAttribute(&value, hipDeviceAttributeWarpSize, app->configuration.device[0]);
 	if (res != hipSuccess) {

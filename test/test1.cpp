@@ -6,29 +6,18 @@
 #include <vector>
 #include <complex>
 
-template<typename T>
-std::vector<T> array2vec(T* ptr, size_t size){
-    std::vector<T> vec;
-    vec.resize(size);
-    for (int i = 0; i < size; ++i) {
-        vec[i]=ptr[i];
-    }
-    return vec;
-}
 
 TEST(TestSuiteName, TestName) {
-    FFT_ErrorCode err;
+    FFT_ERROR_CODE err;
     int shape = 4;
     int batch = 2;
 
     std::vector<std::complex<float>> in(shape * batch, 0);
     std::vector<std::complex<float>> out(in.size());
 
-    auto in_ptr = (float *)in.data();
-    auto out_ptr = (float *)out.data();
+    auto in_ptr = (ComplexF *)in.data();
+    auto out_ptr = (ComplexF *)out.data();
 
-    auto show_in = array2vec(in_ptr, in.size() * 2);
-    auto show_out = array2vec(out_ptr, out.size() * 2);
 
     auto plan = fft_new_plan_float(
             1,
@@ -36,8 +25,8 @@ TEST(TestSuiteName, TestName) {
             2,
             FFT_SIGN::FFT_SIGN_FORWARD,
             FFT_DEVICE::FFT_DEVICE_CPU,
-            in_ptr, in.size() * 2,
-            out_ptr, out.size() * 2,
+            in_ptr, in.size(),
+            out_ptr, out.size(),
             &err);
 
     int i = 0;

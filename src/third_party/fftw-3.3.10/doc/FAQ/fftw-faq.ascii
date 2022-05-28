@@ -804,7 +804,7 @@ intermediate-size prime factors (17-97).  This bug was fixed in FFTW
 Question 5.8.  FFTW 2.1.1's MPI test programs crash with MPICH.
 
 This bug was fixed in FFTW 2.1.2.  The 2.1/2.1.1 MPI test programs crashed
-when using the MPICH implementation of MPI with the ch_p4 device (TCP/IP);
+when using the MPICH implementation of MPI with the ch_p4 _device (TCP/IP);
 the transforms themselves worked fine.
 
 -------------------------------------------------------------------------------

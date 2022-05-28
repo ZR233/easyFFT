@@ -6,6 +6,7 @@
 #define RFFT_RFFT_H
 
 #include <stdint.h>
+#include <complex.h>
 
 #ifdef WIN32
 #define EXT __declspec(dllexport)
@@ -14,7 +15,7 @@
 #endif
 
 #define FFT_PLAN_BODY void* ptr;
-#define PLAN_CONSTRUCTOR_BASE int FFTDim, const int *shape, int numberBatches, FFT_SIGN sign, FFT_DEVICE device
+#define PLAN_CONSTRUCTOR_BASE int FFTDim, const int *shape, int numberBatches, enum FFT_SIGN sign, enum FFT_DEVICE device
 #define PLAN_CONSTRUCTOR_BASE_INPUT FFTDim, shape, numberBatches, sign, device
 
 
@@ -22,9 +23,12 @@
 extern "C" {
 #endif
 
-enum FFT_ErrorCode {
-    FFT_ErrorCode_OK,
-    FFT_ErrorCode_PLAN_TYPE
+enum FFT_ERROR_CODE {
+    FFT_ERROR_CODE_OK,
+    FFT_ERROR_CODE_IN_SIZE,
+    FFT_ERROR_CODE_OUT_SIZE,
+    FFT_ERROR_CODE_CL,
+    FFT_ERROR_CODE_DIM_TOO_BIG
 };
 
 enum FFT_SIGN {
@@ -47,16 +51,18 @@ struct FFTPlanDouble {
 struct FFTPlanDoubleR2C {
     FFT_PLAN_BODY
 };
-
+typedef float ComplexF[2];
+typedef double ComplexD[2];
+typedef float ComplexL[2];
 
 EXT FFTPlanFloat fft_new_plan_float(PLAN_CONSTRUCTOR_BASE,
-                                    float *in_complex, uint64_t in_size,
-                                    float *out_complex, uint64_t out_size,
-                                    FFT_ErrorCode *err);
+                                    ComplexF *in_complex, uint64_t in_size,
+                                    ComplexF *out_complex, uint64_t out_size,
+                                    enum FFT_ERROR_CODE *err);
 
 
 EXT void fft_close_plan(FFTPlanFloat plan);
-EXT FFT_ErrorCode fft_execute(FFTPlanFloat plan);
+EXT enum FFT_ERROR_CODE fft_execute(FFTPlanFloat plan);
 
 #ifdef __cplusplus
 }

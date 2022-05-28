@@ -8559,7 +8559,7 @@ spv::Id TGlslangToSpvTraverser::createMiscOperation(glslang::TOperator op, spv::
 // Intrinsics with no arguments (or no return value, and no precision).
 spv::Id TGlslangToSpvTraverser::createNoArgOperation(glslang::TOperator op, spv::Decoration precision, spv::Id typeId)
 {
-    // GLSL memory barriers use queuefamily scope in new model, device scope in old model
+    // GLSL memory barriers use queuefamily scope in new model, _device scope in old model
     spv::Scope memoryBarrierScope = glslangIntermediate->usingVulkanMemoryModel() ?
         spv::ScopeQueueFamilyKHR : spv::ScopeDevice;
 
