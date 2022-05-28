@@ -25,7 +25,6 @@ PlanFloat::~PlanFloat() {
 
 void PlanFloat::destroy_cpu_plan() {
     if (originPlan != nullptr){
-        std::cout<< "destroy fftwf_plan"<< std::endl;
         fftwf_destroy_plan((fftwf_plan) originPlan);
     }
 }
@@ -35,7 +34,6 @@ void PlanFloat::destroy_gpu_plan() {
 }
 
 
-
 void *PlanFloat::get_fftw_plan(FFTW_PLAN_PARAMS) {
     auto in = (fftwf_complex*)data_in;
     auto out = (fftwf_complex*)data_out;
@@ -43,6 +41,16 @@ void *PlanFloat::get_fftw_plan(FFTW_PLAN_PARAMS) {
     auto plan = fftwf_plan_many_dft(FFTW_PLAN_PARAMS_INPUT);
     return plan;
 }
+
+void PlanFloat::cpu_plan_execute() {
+    auto plan = (fftwf_plan) originPlan;
+    fftwf_execute(plan);
+}
+
+void PlanFloat::gpu_plan_execute() {
+
+}
+
 
 
 

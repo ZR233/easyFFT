@@ -24,7 +24,7 @@ public:
           void* data_in, uint64_t data_in_size,
           void* data_out, uint64_t data_out_size);
     virtual ~Plan();
-
+    void execute();
 protected:
 
     std::vector<int> shape;
@@ -43,6 +43,9 @@ protected:
     const uint64_t data_out_size;
     virtual void destroy_cpu_plan()=0;
     virtual void destroy_gpu_plan()=0;
+    virtual void cpu_plan_execute()=0;
+    virtual void gpu_plan_execute()=0;
+
     virtual void *get_fftw_plan(FFTW_PLAN_PARAMS)=0;
 };
 

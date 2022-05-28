@@ -5,6 +5,7 @@
 #include "vkFFT/vkFFT.h"
 #include "PlanFloat.h"
 #include <iostream>
+#include "Exception.hpp"
 
 
 
@@ -24,4 +25,14 @@ FFTPlanFloat fft_new_plan_float(PLAN_CONSTRUCTOR_BASE,
 
 void fft_close_plan(FFTPlanFloat plan){
     delete (PlanFloat*)plan.ptr;
+}
+
+FFT_ErrorCode fft_execute(FFTPlanFloat plan){
+    try{
+        auto ptr = (PlanFloat*)plan.ptr;
+        ptr->execute();
+    }catch (Exception &e){
+        return e.error_code;
+    }
+    return FFT_ErrorCode_OK;
 }

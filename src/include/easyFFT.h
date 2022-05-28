@@ -56,7 +56,7 @@ EXT FFTPlanFloat fft_new_plan_float(PLAN_CONSTRUCTOR_BASE,
 
 
 EXT void fft_close_plan(FFTPlanFloat plan);
-EXT FFTPlanFloat fft_execute(PLAN_CONSTRUCTOR_BASE, FFT_ErrorCode *err);
+EXT FFT_ErrorCode fft_execute(FFTPlanFloat plan);
 
 #ifdef __cplusplus
 }

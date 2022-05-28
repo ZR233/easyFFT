@@ -26,7 +26,9 @@ protected:
 
     void destroy_gpu_plan() override;
 
+    void gpu_plan_execute() override;
 
+    void cpu_plan_execute() override;
 };
 
 

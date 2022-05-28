@@ -96,3 +96,14 @@ void Plan::init() {
             break;
     }
 }
+void Plan::execute(){
+    switch (device) {
+
+        case FFT_DEVICE_CPU:
+            cpu_plan_execute();
+            break;
+        case FFT_DEVICE_GPU:
+            gpu_plan_execute();
+            break;
+    }
+}
