@@ -2,9 +2,7 @@
 // Created by zrufo on 2022-05-15.
 //
 #include "include/easyFFT.h"
-#include "vkFFT/vkFFT.h"
 #include "PlanFloat.h"
-#include <iostream>
 #include "Exception.hpp"
 
 
@@ -30,7 +28,12 @@ FFTPlanFloat fft_new_plan_float(PLAN_CONSTRUCTOR_BASE,
     plan.ptr = ptr;
     return plan;
 }
-
+enum FFT_ERROR_CODE fft_plan_device_name(FFTPlanFloat plan, char *name, int size){
+    auto p = (PlanFloat*)plan.ptr;
+    memset(name, '\0', size);
+    p->device_name.copy(name, size);
+    return FFT_ERROR_CODE_OK;
+}
 
 void fft_close_plan(FFTPlanFloat plan){
     delete (PlanFloat*)plan.ptr;

@@ -25,9 +25,9 @@ PlanFloat::~PlanFloat() {
 
 
 void *PlanFloat::get_fftw_plan(FFTW_PLAN_PARAMS) {
+    device_name = "FFTW3f";
     auto in = data_in;
     auto out = data_out;
-
     auto plan = fftwf_plan_many_dft(FFTW_PLAN_PARAMS_INPUT);
     return plan;
 }
@@ -38,9 +38,6 @@ void PlanFloat::cpu_plan_execute() {
     fftwf_execute(plan);
 }
 
-void PlanFloat::gpu_plan_execute() {
-
-}
 
 
 

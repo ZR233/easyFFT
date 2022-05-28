@@ -21,8 +21,6 @@ public:
 protected:
     void *get_fftw_plan(FFTW_PLAN_PARAMS) override;
 
-    void gpu_plan_execute() override;
-
     void cpu_plan_execute() override;
 };
 

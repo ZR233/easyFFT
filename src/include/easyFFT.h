@@ -28,7 +28,9 @@ enum FFT_ERROR_CODE {
     FFT_ERROR_CODE_IN_SIZE,
     FFT_ERROR_CODE_OUT_SIZE,
     FFT_ERROR_CODE_CL,
-    FFT_ERROR_CODE_DIM_TOO_BIG
+    FFT_ERROR_CODE_DIM_TOO_BIG,
+    FFT_ERROR_CODE_NO_CL_DEVICE,
+    FFT_ERROR_CODE_VKFFT,
 };
 
 enum FFT_SIGN {
@@ -60,7 +62,7 @@ EXT FFTPlanFloat fft_new_plan_float(PLAN_CONSTRUCTOR_BASE,
                                     ComplexF *out_complex, uint64_t out_size,
                                     enum FFT_ERROR_CODE *err);
 
-
+EXT enum FFT_ERROR_CODE fft_plan_device_name(FFTPlanFloat plan, char *name, int size);
 EXT void fft_close_plan(FFTPlanFloat plan);
 EXT enum FFT_ERROR_CODE fft_execute(FFTPlanFloat plan);
 
