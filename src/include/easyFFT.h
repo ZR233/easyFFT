@@ -5,8 +5,7 @@
 #ifndef RFFT_RFFT_H
 #define RFFT_RFFT_H
 
-#include <stdint.h>
-#include <complex.h>
+#include <cstdint>
 
 #ifdef WIN32
 #define EXT __declspec(dllexport)
