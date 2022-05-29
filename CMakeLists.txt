@@ -9,7 +9,7 @@ SET(LIB_DIRS)
 
 list(APPEND INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/third_party/vkFFT)
 
-
+list(APPEND INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/third_party/fftw-3.3.10/api)
 IF (CMAKE_SYSTEM_NAME MATCHES "Android")
     MESSAGE(STATUS "current platform: Android ")
     if (NOT DEFINED ANDROID_PLATFORM)
@@ -22,7 +22,7 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Android")
     message(STATUS "ANDROID_PLATFORM=${ANDROID_PLATFORM}")
     add_subdirectory("third_party/fftw-3.3.10")
 
-    list(APPEND INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/third_party/fftw-3.3.10/api)
+
     list(APPEND LIBS fftw3 fftw3f)
 endif()
 IF(MSVC)
@@ -80,22 +80,24 @@ if (${VKFFT_BACKEND} EQUAL 3)
 endif ()
 
 IF(MSVC)
-    find_package(FFTW3 CONFIG REQUIRED)
-    find_package(FFTW3f CONFIG REQUIRED)
-    find_package(FFTW3l CONFIG REQUIRED)
+#    find_package(FFTW3 CONFIG REQUIRED)
+#    find_package(FFTW3f CONFIG REQUIRED)
+#    find_package(FFTW3l CONFIG REQUIRED)
+#    list(APPEND LIBS FFTW3::fftw3 FFTW3::fftw3f FFTW3::fftw3l)
 
+    add_subdirectory("third_party/fftw-win")
+    add_dependencies(${PROJECT_NAME} fftw3 fftw3f fftw3l)
 
-    list(APPEND LIBS FFTW3::fftw3 FFTW3::fftw3f FFTW3::fftw3l)
-
-    #    list(APPEND LIB_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/fftw-win)
-    #    add_dependencies(${PROJECT_NAME} fftw3 fftw3f fftw3l)
+    list(APPEND LIB_DIRS ${CMAKE_BINARY_DIR}/third_party/fftw-win)
+    list(APPEND LIBS libfftw3-3 libfftw3f-3 libfftw3l-3)
 
 #    INSTALL(
 #            FILES ${CMAKE_BINARY_DIR}/rfftc.dll DESTINATION
 #    )
 ENDIF()
 message(STATUS "INCLUDE_DIRS=${INCLUDE_DIRS}")
-target_link_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIRS})
+message(STATUS "LIB_DIRS=${LIB_DIRS}")
+target_link_directories(${PROJECT_NAME} PUBLIC ${LIB_DIRS})
 target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIRS})
 message(STATUS "LIBS: ${LIBS}")
 target_link_libraries(${PROJECT_NAME} PUBLIC ${LIBS})
