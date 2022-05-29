@@ -30,7 +30,6 @@ static  std::shared_ptr<DeviceInfo> getDeviceInfo(cl_device_id device){
     err = clGetDeviceInfo(device, CL_DEVICE_NAME, 100, buffer, nullptr);
     handle_cl_err(err);
     info->name.assign(buffer);
-    //查询设备计算单元最大数目
     cl_uint UnitNum;
     err = clGetDeviceInfo(device, CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(cl_uint), &UnitNum, NULL);
     handle_cl_err(err);

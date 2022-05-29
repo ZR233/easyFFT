@@ -55,7 +55,9 @@ message(STATUS "VKFFT_BACKEND=${VKFFT_BACKEND}")
 add_definitions(-DVKFFT_BACKEND=${VKFFT_BACKEND})
 
 aux_source_directory(./src SRC_EASY_FFT)
-add_library(${PROJECT_NAME} SHARED ${SRC_EASY_FFT})
+add_library(${PROJECT_NAME} STATIC ${SRC_EASY_FFT})
+#add_library(${PROJECT_NAME} SHARED ${SRC_EASY_FFT})
+
 
 if (${VKFFT_BACKEND} EQUAL 0)
     if(NOT ${Vulkan_FOUND})
