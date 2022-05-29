@@ -87,13 +87,16 @@ IF(MSVC)
 
     add_subdirectory("third_party/fftw-win")
     add_dependencies(${PROJECT_NAME} fftw3 fftw3f fftw3l)
-
+    SET(FFT_DLL_DIR third_party/fftw-win)
     list(APPEND LIB_DIRS ${CMAKE_BINARY_DIR}/third_party/fftw-win)
     list(APPEND LIBS libfftw3-3 libfftw3f-3 libfftw3l-3)
 
-#    INSTALL(
-#            FILES ${CMAKE_BINARY_DIR}/rfftc.dll DESTINATION
-#    )
+    INSTALL(
+            FILES
+            ${FFT_DLL_DIR}/libfftw3-3.dll
+            ${FFT_DLL_DIR}/libfftw3f-3.dll
+            ${FFT_DLL_DIR}/libfftw3l-3.dll DESTINATION ${CMAKE_INSTALL_BINDIR}
+    )
 ENDIF()
 message(STATUS "INCLUDE_DIRS=${INCLUDE_DIRS}")
 message(STATUS "LIB_DIRS=${LIB_DIRS}")
