@@ -13,7 +13,7 @@
 #define EXT
 #endif
 
-#define FFT_PLAN_BODY void* ptr;
+
 #define PLAN_CONSTRUCTOR_BASE int32_t dim, const int32_t *shape, int32_t number_batches, enum FFT_SIGN sign, enum FFT_DEVICE device
 #define PLAN_CONSTRUCTOR_BASE_INPUT dim, shape, number_batches, sign, device
 
@@ -42,28 +42,36 @@ enum FFT_DEVICE {
     FFT_DEVICE_GPU,
 };
 
-
+struct FFTPlanConfig{
+    int32_t dim;
+    const int32_t *shape;
+    int32_t number_batches;
+    enum FFT_SIGN sign;
+    enum FFT_DEVICE device;
+};
 struct FFTPlanFloat {
-    FFT_PLAN_BODY
+    FFTPlanConfig config;
+    void* ptr;
 };
 struct FFTPlanDouble {
-    FFT_PLAN_BODY
+    FFTPlanConfig config;
+    void* ptr;
 };
 struct FFTPlanDoubleR2C {
-    FFT_PLAN_BODY
+    FFTPlanConfig config;
+    void* ptr;
 };
 typedef float ComplexF[2];
 typedef double ComplexD[2];
 typedef float ComplexL[2];
 
-EXT struct FFTPlanFloat fft_new_plan_float(PLAN_CONSTRUCTOR_BASE,
-                                    ComplexF *in_complex, uint64_t in_size,
-                                    ComplexF *out_complex, uint64_t out_size,
-                                    enum FFT_ERROR_CODE *err);
+EXT enum FFT_ERROR_CODE fft_plan_init(struct FFTPlanFloat *plan,
+                                      ComplexF *in_complex, uint64_t in_size,
+                                      ComplexF *out_complex, uint64_t out_size);
 
-EXT enum FFT_ERROR_CODE fft_plan_device_name(struct FFTPlanFloat plan, char *name, int size);
-EXT void fft_close_plan(struct FFTPlanFloat plan);
-EXT enum FFT_ERROR_CODE fft_execute(struct FFTPlanFloat plan);
+EXT enum FFT_ERROR_CODE fft_plan_device_name(struct FFTPlanFloat *plan, char *name, int size);
+EXT void fft_close_plan(struct FFTPlanFloat *plan);
+EXT enum FFT_ERROR_CODE fft_execute(struct FFTPlanFloat *plan);
 
 #ifdef __cplusplus
 }

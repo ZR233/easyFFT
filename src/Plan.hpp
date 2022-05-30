@@ -32,21 +32,21 @@ enum FFTW_PLAN_TYPE{
 template<typename T>
 class Plan{
 public:
-    Plan (PLAN_CONSTRUCTOR_BASE, FFTW_PLAN_TYPE fftw_plan_type,
+    Plan (FFTPlanConfig config, FFTW_PLAN_TYPE fftw_plan_type,
              T* data_in, uint64_t data_in_size,
              T* data_out, uint64_t data_out_size):
-            sign(sign),
-            _device(device),
+            sign(config.sign),
+            _device(config.device),
             data_in(data_in),
             data_in_size(data_in_size),
             data_out(data_out),
             data_out_size(data_out_size),
             fftw_plan_type(fftw_plan_type),
-            number_batches(number_batches){
-        this->shape.assign(dim, 0);
+            number_batches(config.number_batches){
+        this->shape.assign(config.dim, 0);
 
-        for (int i = 0; i < dim; ++i) {
-            this->shape[i] = shape[i];
+        for (int i = 0; i < config.dim; ++i) {
+            this->shape[i] = config.shape[i];
         }
     }
     virtual ~Plan() {

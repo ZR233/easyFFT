@@ -10,10 +10,10 @@
 
 
 
-PlanFloat::PlanFloat(PLAN_CONSTRUCTOR_BASE,
+PlanFloat::PlanFloat(FFTPlanConfig config,
                      ComplexF *in_complex, uint64_t in_size,
                      ComplexF *out_complex, uint64_t out_size):
-    Plan<ComplexF>(PLAN_CONSTRUCTOR_BASE_INPUT, FFTW_PLAN_TYPE_F,
+    Plan<ComplexF>(config, FFTW_PLAN_TYPE_F,
                        in_complex, in_size, out_complex, out_size) {
 
     std::cout<< "create PlanFloat"<< std::endl;

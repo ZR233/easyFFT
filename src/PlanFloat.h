@@ -12,7 +12,7 @@
 
 class PlanFloat : public Plan<ComplexF> {
 public:
-    PlanFloat(PLAN_CONSTRUCTOR_BASE,
+    PlanFloat(FFTPlanConfig config,
               ComplexF *in_complex, uint64_t in_size,
               ComplexF *out_complex, uint64_t out_size);
 

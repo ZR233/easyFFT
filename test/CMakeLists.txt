@@ -12,8 +12,6 @@ include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} ../src/inclu
 aux_source_directory(. SRC_TEST)
 add_executable(Google_Tests_run  ${SRC_TEST})
 
-
-
 target_link_libraries(Google_Tests_run  gtest gtest_main easyFFT)
 
 

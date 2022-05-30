@@ -54,8 +54,10 @@ endif ()
 message(STATUS "VKFFT_BACKEND=${VKFFT_BACKEND}")
 add_definitions(-DVKFFT_BACKEND=${VKFFT_BACKEND})
 
+message(STATUS "CMAKE_INSTALL_BINDIR=${CMAKE_INSTALL_BINDIR}")
+
 aux_source_directory(./src SRC_EASY_FFT)
-add_library(${PROJECT_NAME} STATIC ${SRC_EASY_FFT})
+add_library(${PROJECT_NAME} ${SRC_EASY_FFT})
 #add_library(${PROJECT_NAME} SHARED ${SRC_EASY_FFT})
 
 
@@ -82,16 +84,12 @@ if (${VKFFT_BACKEND} EQUAL 3)
 endif ()
 
 IF(MSVC)
-#    find_package(FFTW3 CONFIG REQUIRED)
-#    find_package(FFTW3f CONFIG REQUIRED)
-#    find_package(FFTW3l CONFIG REQUIRED)
-#    list(APPEND LIBS FFTW3::fftw3 FFTW3::fftw3f FFTW3::fftw3l)
-
     add_subdirectory("third_party/fftw-win")
     add_dependencies(${PROJECT_NAME} fftw3 fftw3f fftw3l)
     SET(FFT_DLL_DIR third_party/fftw-win)
     list(APPEND LIB_DIRS ${CMAKE_BINARY_DIR}/third_party/fftw-win)
     list(APPEND LIBS libfftw3-3 libfftw3f-3 libfftw3l-3)
+
 
     INSTALL(
             FILES
@@ -106,7 +104,10 @@ target_link_directories(${PROJECT_NAME} PUBLIC ${LIB_DIRS})
 target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIRS})
 message(STATUS "LIBS: ${LIBS}")
 target_link_libraries(${PROJECT_NAME} PUBLIC ${LIBS})
-
+INSTALL(
+        FILES
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/include/easyFFT.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
 install(TARGETS ${PROJECT_NAME}
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

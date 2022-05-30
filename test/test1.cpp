@@ -25,25 +25,33 @@ TEST(TestSuiteName, TestName) {
     auto inG_ptr = (ComplexF *)inG.data();
     auto outG_ptr = (ComplexF *)outG.data();
 
-    auto plan = fft_new_plan_float(
-            1,
-            &shape,
-            2,
-            FFT_SIGN::FFT_SIGN_FORWARD,
-            FFT_DEVICE::FFT_DEVICE_CPU,
+    auto plan = FFTPlanFloat{
+        FFTPlanConfig{
+                1,
+                &shape,
+                2,
+                FFT_SIGN::FFT_SIGN_FORWARD,
+                FFT_DEVICE::FFT_DEVICE_CPU,
+        }
+    };
+    auto planG = FFTPlanFloat{
+            FFTPlanConfig{
+                    1,
+                    &shape,
+                    2,
+                    FFT_SIGN::FFT_SIGN_FORWARD,
+                    FFT_DEVICE::FFT_DEVICE_GPU,
+            }
+    };
+    err = fft_plan_init(
+            &plan,
             in_ptr, in.size(),
-            out_ptr, out.size(),
-            &err);
+            out_ptr, out.size());
 
-    auto planG = fft_new_plan_float(
-            1,
-            &shape,
-            2,
-            FFT_SIGN::FFT_SIGN_FORWARD,
-            FFT_DEVICE::FFT_DEVICE_GPU,
+    err = fft_plan_init(
+            &planG,
             inG_ptr, inG.size(),
-            outG_ptr, outG.size(),
-            &err);
+            outG_ptr, outG.size());
     int i = 0;
 
     for (; i < shape; ++i) {
@@ -58,10 +66,10 @@ TEST(TestSuiteName, TestName) {
     }
 
 
-    fft_execute(plan);
-    fft_execute(planG);
-    fft_close_plan(plan);
-    fft_close_plan(planG);
+    fft_execute(&plan);
+    fft_execute(&planG);
+    fft_close_plan(&plan);
+    fft_close_plan(&planG);
     EXPECT_EQ(1, 1);
 }
 
@@ -87,28 +95,36 @@ TEST(TestSuiteName, TestBench) {
     auto inG_ptr = (ComplexF *)inG.data();
     auto outG_ptr = (ComplexF *)outG.data();
 
-    auto plan = fft_new_plan_float(
-            1,
-            &shape,
-            batch,
-            FFT_SIGN::FFT_SIGN_FORWARD,
-            FFT_DEVICE::FFT_DEVICE_CPU,
+    auto plan = FFTPlanFloat{
+            FFTPlanConfig{
+                    1,
+                    &shape,
+                    batch,
+                    FFT_SIGN::FFT_SIGN_FORWARD,
+                    FFT_DEVICE::FFT_DEVICE_CPU,
+            }
+    };
+    auto planG = FFTPlanFloat{
+            FFTPlanConfig{
+                    1,
+                    &shape,
+                    batch,
+                    FFT_SIGN::FFT_SIGN_FORWARD,
+                    FFT_DEVICE::FFT_DEVICE_GPU,
+            }
+    };
+    err = fft_plan_init(
+            &plan,
             in_ptr, in.size(),
-            out_ptr, out.size(),
-            &err);
+            out_ptr, out.size());
 
-    auto planG = fft_new_plan_float(
-            1,
-            &shape,
-            batch,
-            FFT_SIGN::FFT_SIGN_FORWARD,
-            FFT_DEVICE::FFT_DEVICE_GPU,
+    err = fft_plan_init(
+            &planG,
             inG_ptr, inG.size(),
-            outG_ptr, outG.size(),
-            &err);
+            outG_ptr, outG.size());
     int i = 0;
 
-    fft_plan_device_name(planG, name, 50);
+    fft_plan_device_name(&planG, name, 50);
 
     std::cout<<"name: "<< name <<std::endl;
 
@@ -124,18 +140,18 @@ TEST(TestSuiteName, TestBench) {
     }
 
     auto Time1=clock();
-    fft_execute(plan);
+    fft_execute(&plan);
     auto Time2=clock();
     auto Time3 = Time2-Time1;
     std::cout<<"cost 1:"<< Time3 <<std::endl;
 
     Time1=clock();
-    fft_execute(planG);
+    fft_execute(&planG);
     Time2=clock();
     Time3 = Time2-Time1;
     std::cout<<"cost 2:"<<Time3<<std::endl;
 
-    fft_close_plan(plan);
-    fft_close_plan(planG);
+    fft_close_plan(&plan);
+    fft_close_plan(&planG);
     EXPECT_EQ(1, 1);
 }
