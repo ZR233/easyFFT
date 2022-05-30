@@ -65,13 +65,14 @@ typedef float ComplexF[2];
 typedef double ComplexD[2];
 typedef float ComplexL[2];
 
-EXT enum FFT_ERROR_CODE fft_plan_init(struct FFTPlanFloat *plan,
+EXT enum FFT_ERROR_CODE fft_planf_init(struct FFTPlanFloat *plan,
                                       ComplexF *in_complex, uint64_t in_size,
                                       ComplexF *out_complex, uint64_t out_size);
 
-EXT enum FFT_ERROR_CODE fft_plan_device_name(struct FFTPlanFloat *plan, char *name, int size);
-EXT void fft_close_plan(struct FFTPlanFloat *plan);
-EXT enum FFT_ERROR_CODE fft_execute(struct FFTPlanFloat *plan);
+EXT enum FFT_ERROR_CODE fft_planf_device_name(struct FFTPlanFloat *plan, char *name, int size);
+EXT void fft_close_planf(struct FFTPlanFloat *plan);
+EXT void fft_close_plan(struct FFTPlanDouble *plan);
+EXT enum FFT_ERROR_CODE fft_planf_execute(struct FFTPlanFloat *plan);
 
 #ifdef __cplusplus
 }

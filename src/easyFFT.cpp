@@ -8,7 +8,7 @@
 
 
 
-enum FFT_ERROR_CODE fft_plan_init(
+enum FFT_ERROR_CODE fft_planf_init(
         struct FFTPlanFloat *plan,
                 ComplexF* in_complex, uint64_t in_size,
                 ComplexF* out_complex, uint64_t out_size){
@@ -28,18 +28,18 @@ enum FFT_ERROR_CODE fft_plan_init(
     plan->ptr = ptr;
     return err;
 }
-enum FFT_ERROR_CODE fft_plan_device_name(FFTPlanFloat *plan, char *name, int size){
+enum FFT_ERROR_CODE fft_planf_device_name(FFTPlanFloat *plan, char *name, int size){
     auto p = (PlanFloat*)plan->ptr;
     memset(name, '\0', size);
     p->device_name.copy(name, size);
     return FFT_ERROR_CODE_OK;
 }
 
-void fft_close_plan(FFTPlanFloat *plan){
+void fft_close_planf(FFTPlanFloat *plan){
     delete (PlanFloat*)plan->ptr;
 }
 
-enum FFT_ERROR_CODE fft_execute(FFTPlanFloat *plan){
+enum FFT_ERROR_CODE fft_planf_execute(FFTPlanFloat *plan){
     try{
         auto ptr = (PlanFloat*)plan->ptr;
         ptr->execute();
@@ -47,4 +47,9 @@ enum FFT_ERROR_CODE fft_execute(FFTPlanFloat *plan){
         return e.error_code;
     }
     return FFT_ERROR_CODE_OK;
+}
+
+
+void fft_close_plan(struct FFTPlanDouble *plan){
+
 }

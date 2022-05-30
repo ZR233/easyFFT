@@ -43,12 +43,12 @@ TEST(TestSuiteName, TestName) {
                     FFT_DEVICE::FFT_DEVICE_GPU,
             }
     };
-    err = fft_plan_init(
+    err = fft_planf_init(
             &plan,
             in_ptr, in.size(),
             out_ptr, out.size());
 
-    err = fft_plan_init(
+    err = fft_planf_init(
             &planG,
             inG_ptr, inG.size(),
             outG_ptr, outG.size());
@@ -66,10 +66,10 @@ TEST(TestSuiteName, TestName) {
     }
 
 
-    fft_execute(&plan);
-    fft_execute(&planG);
-    fft_close_plan(&plan);
-    fft_close_plan(&planG);
+    fft_planf_execute(&plan);
+    fft_planf_execute(&planG);
+    fft_close_planf(&plan);
+    fft_close_planf(&planG);
     EXPECT_EQ(1, 1);
 }
 
@@ -113,18 +113,18 @@ TEST(TestSuiteName, TestBench) {
                     FFT_DEVICE::FFT_DEVICE_GPU,
             }
     };
-    err = fft_plan_init(
+    err = fft_planf_init(
             &plan,
             in_ptr, in.size(),
             out_ptr, out.size());
 
-    err = fft_plan_init(
+    err = fft_planf_init(
             &planG,
             inG_ptr, inG.size(),
             outG_ptr, outG.size());
     int i = 0;
 
-    fft_plan_device_name(&planG, name, 50);
+    fft_planf_device_name(&planG, name, 50);
 
     std::cout<<"name: "<< name <<std::endl;
 
@@ -140,18 +140,18 @@ TEST(TestSuiteName, TestBench) {
     }
 
     auto Time1=clock();
-    fft_execute(&plan);
+    fft_planf_execute(&plan);
     auto Time2=clock();
     auto Time3 = Time2-Time1;
     std::cout<<"cost 1:"<< Time3 <<std::endl;
 
     Time1=clock();
-    fft_execute(&planG);
+    fft_planf_execute(&planG);
     Time2=clock();
     Time3 = Time2-Time1;
     std::cout<<"cost 2:"<<Time3<<std::endl;
 
-    fft_close_plan(&plan);
-    fft_close_plan(&planG);
+    fft_close_planf(&plan);
+    fft_close_planf(&planG);
     EXPECT_EQ(1, 1);
 }
