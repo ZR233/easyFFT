@@ -23,23 +23,23 @@ extern "C" {
 #endif
 
 enum FFT_ERROR_CODE {
-    FFT_ERROR_CODE_OK,
-    FFT_ERROR_CODE_IN_SIZE,
-    FFT_ERROR_CODE_OUT_SIZE,
-    FFT_ERROR_CODE_CL,
-    FFT_ERROR_CODE_DIM_TOO_BIG,
-    FFT_ERROR_CODE_NO_CL_DEVICE,
-    FFT_ERROR_CODE_VKFFT,
+    OK,
+    IN_SIZE,
+    OUT_SIZE,
+    CL,
+    DIM_TOO_BIG,
+    NO_CL_DEVICE,
+    VKFFT,
 };
 
 enum FFT_SIGN {
-    FFT_SIGN_FORWARD,
-    FFT_SIGN_BACKWARD,
+    FORWARD,
+    BACKWARD,
 };
 
 enum FFT_DEVICE {
-    FFT_DEVICE_CPU,
-    FFT_DEVICE_GPU,
+    CPU,
+    GPU,
 };
 
 struct FFTPlanConfig{

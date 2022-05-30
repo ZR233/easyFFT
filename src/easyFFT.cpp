@@ -13,7 +13,7 @@ enum FFT_ERROR_CODE fft_planf_init(
                 ComplexF* in_complex, uint64_t in_size,
                 ComplexF* out_complex, uint64_t out_size){
 
-    auto err = FFT_ERROR_CODE_OK;
+    auto err = OK;
 
     auto ptr = new PlanFloat(plan->config,
                              in_complex, in_size,
@@ -32,7 +32,7 @@ enum FFT_ERROR_CODE fft_planf_device_name(FFTPlanFloat *plan, char *name, int si
     auto p = (PlanFloat*)plan->ptr;
     memset(name, '\0', size);
     p->device_name.copy(name, size);
-    return FFT_ERROR_CODE_OK;
+    return OK;
 }
 
 void fft_close_planf(FFTPlanFloat *plan){
@@ -46,7 +46,7 @@ enum FFT_ERROR_CODE fft_planf_execute(FFTPlanFloat *plan){
     }catch (Exception &e){
         return e.error_code;
     }
-    return FFT_ERROR_CODE_OK;
+    return OK;
 }
 
 

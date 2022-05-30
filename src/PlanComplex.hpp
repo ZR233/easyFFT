@@ -29,13 +29,13 @@
 //            std::strstream s;
 //            s << "need in size: "<< need_size << "actual: "<< in_size;
 //
-//            throw Exception(s.str(), FFT_ERROR_CODE_IN_SIZE);
+//            throw Exception(s.str(), IN_SIZE);
 //        }
 //        if (need_size != out_size){
 //            std::strstream s;
 //            s << "need out size: "<< need_size << "actual: "<< in_size;
 //
-//            throw Exception(s.str(), FFT_ERROR_CODE_OUT_SIZE);
+//            throw Exception(s.str(), OUT_SIZE);
 //        }
 //    }
 //

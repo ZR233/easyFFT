@@ -19,7 +19,7 @@ static void handle_cl_err(cl_int err){
         std::strstream s;
         s << "CL: (" << err << ")";
 
-        throw Exception(s.str(), FFT_ERROR_CODE_CL);
+        throw Exception(s.str(), CL);
     }
 }
 

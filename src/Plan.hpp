@@ -51,10 +51,10 @@ public:
     }
     virtual ~Plan() {
         switch (_device) {
-            case FFT_DEVICE_CPU:
+            case CPU:
                 destroy_cpu_plan();
                 break;
-            case FFT_DEVICE_GPU:
+            case GPU:
                 destroy_gpu_plan();
                 break;
         }
@@ -70,30 +70,30 @@ public:
             std::strstream s;
             s << "need in size: "<< need_size << "actual: "<< data_in_size;
 
-            throw Exception(s.str(), FFT_ERROR_CODE_IN_SIZE);
+            throw Exception(s.str(), IN_SIZE);
         }
         if (need_size != data_out_size){
             std::strstream s;
             s << "need out size: "<< need_size << "actual: "<< data_out_size;
 
-            throw Exception(s.str(), FFT_ERROR_CODE_OUT_SIZE);
+            throw Exception(s.str(), OUT_SIZE);
         }
 
         switch (_device) {
-            case FFT_DEVICE_CPU:
+            case CPU:
                 chose_fftw_plan();
                 break;
-            case FFT_DEVICE_GPU:
+            case GPU:
                 chose_gpu_plan();
                 break;
         }
     }
     void execute(){
         switch (_device) {
-            case FFT_DEVICE_CPU:
+            case CPU:
                 cpu_plan_execute();
                 break;
-            case FFT_DEVICE_GPU:
+            case GPU:
                 gpu_plan_execute();
                 break;
         }
@@ -153,10 +153,10 @@ private:
         int ostride =1, istride = 1;
         int sign_;
         switch (this->sign) {
-            case FFT_SIGN_FORWARD:
+            case FORWARD:
                 sign_ = FFTW_FORWARD;
                 break;
-            case FFT_SIGN_BACKWARD:
+            case BACKWARD:
                 sign_ = FFTW_BACKWARD;
                 break;
         }
@@ -178,7 +178,7 @@ private:
             std::strstream s;
             s << "VKFFT error: (" << err << ")";
 
-            throw Exception(s.str(), FFT_ERROR_CODE_VKFFT);
+            throw Exception(s.str(), VKFFT);
         }
     }
 
@@ -208,7 +208,7 @@ private:
         /* Setup OpenCL environment. */
         err = clGetPlatformIDs( 0, nullptr, &platform_num );
         if (err == CL_DEVICE_NOT_FOUND || platform_num==0){
-            throw Exception("no openCL device", FFT_ERROR_CODE_NO_CL_DEVICE);
+            throw Exception("no openCL device", NO_CL_DEVICE);
         }
 
         handle_cl_err(err);
@@ -252,7 +252,7 @@ private:
         vk_app = std::make_shared<VkFFTApplication>();
 
         if (shape.size() > 3){
-            throw Exception("dim bigger than 3", FFT_ERROR_CODE_DIM_TOO_BIG);
+            throw Exception("dim bigger than 3", DIM_TOO_BIG);
         }
 
         configuration.FFTdim = shape.size(); //FFT dimension, 1D, 2D or 3D

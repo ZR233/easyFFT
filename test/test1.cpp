@@ -30,8 +30,8 @@ TEST(TestSuiteName, TestName) {
                 1,
                 &shape,
                 2,
-                FFT_SIGN::FFT_SIGN_FORWARD,
-                FFT_DEVICE::FFT_DEVICE_CPU,
+                FFT_SIGN::FORWARD,
+                FFT_DEVICE::CPU,
         }
     };
     auto planG = FFTPlanFloat{
@@ -39,8 +39,8 @@ TEST(TestSuiteName, TestName) {
                     1,
                     &shape,
                     2,
-                    FFT_SIGN::FFT_SIGN_FORWARD,
-                    FFT_DEVICE::FFT_DEVICE_GPU,
+                    FFT_SIGN::FORWARD,
+                    FFT_DEVICE::GPU,
             }
     };
     err = fft_planf_init(
@@ -100,8 +100,8 @@ TEST(TestSuiteName, TestBench) {
                     1,
                     &shape,
                     batch,
-                    FFT_SIGN::FFT_SIGN_FORWARD,
-                    FFT_DEVICE::FFT_DEVICE_CPU,
+                    FFT_SIGN::FORWARD,
+                    FFT_DEVICE::CPU,
             }
     };
     auto planG = FFTPlanFloat{
@@ -109,8 +109,8 @@ TEST(TestSuiteName, TestBench) {
                     1,
                     &shape,
                     batch,
-                    FFT_SIGN::FFT_SIGN_FORWARD,
-                    FFT_DEVICE::FFT_DEVICE_GPU,
+                    FFT_SIGN::FORWARD,
+                    FFT_DEVICE::GPU,
             }
     };
     err = fft_planf_init(
