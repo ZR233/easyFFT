@@ -50,15 +50,15 @@ struct FFTPlanConfig{
     enum FFT_DEVICE device;
 };
 struct FFTPlanFloat {
-    FFTPlanConfig config;
+    struct FFTPlanConfig config;
     void* ptr;
 };
 struct FFTPlanDouble {
-    FFTPlanConfig config;
+    struct FFTPlanConfig config;
     void* ptr;
 };
 struct FFTPlanDoubleR2C {
-    FFTPlanConfig config;
+    struct FFTPlanConfig config;
     void* ptr;
 };
 typedef float ComplexF[2];
