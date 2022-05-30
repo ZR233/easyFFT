@@ -7,7 +7,7 @@
 
 #include <stdint.h>
 
-#ifdef WIN32
+#ifdef _MSVC_LANG
 #define EXT __declspec(dllexport)
 #else
 #define EXT

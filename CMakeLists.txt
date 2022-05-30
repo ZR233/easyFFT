@@ -101,9 +101,9 @@ ENDIF()
 message(STATUS "INCLUDE_DIRS=${INCLUDE_DIRS}")
 message(STATUS "LIB_DIRS=${LIB_DIRS}")
 target_link_directories(${PROJECT_NAME} PUBLIC ${LIB_DIRS})
-target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIRS})
+target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDE_DIRS})
 message(STATUS "LIBS: ${LIBS}")
-target_link_libraries(${PROJECT_NAME} PUBLIC ${LIBS})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBS})
 INSTALL(
         FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/src/include/easyFFT.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
