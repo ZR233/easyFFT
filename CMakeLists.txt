@@ -8,6 +8,8 @@ option (BUILD_TESTS "Build tests" ON)
 SET(LIBS)
 SET(INCLUDE_DIRS)
 SET(LIB_DIRS)
+cmake_policy(SET CMP0077 NEW)
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
 list(APPEND INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/third_party/vkFFT)
 
@@ -68,8 +70,7 @@ if (${VKFFT_BACKEND} EQUAL 0)
         message(FATAL_ERROR "Vulkan not Found")
     endif()
     set(BUILD_EXTERNAL OFF)
-    cmake_policy(SET CMP0077 NEW)
-    set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+
     list(APPEND LIBS Vulkan::Vulkan SPIRV glslang)
     list(APPEND INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/third_party/glslang-master-tot/glslang/Include/)
     #    target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/glslang-master-tot/glslang/Include/)
