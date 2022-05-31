@@ -311,7 +311,7 @@ private:
                     fftw_destroy_plan((fftw_plan) originPlan);
                     break;
                 case FFTW_PLAN_TYPE_L:
-                    fftwl_destroy_plan((fftwl_plan) originPlan);
+//                    fftwl_destroy_plan((fftwl_plan) originPlan);
                     break;
             }
         }

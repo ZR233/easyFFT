@@ -8,6 +8,7 @@ option (BUILD_TESTS "Build tests" ON)
 SET(LIBS)
 SET(INCLUDE_DIRS)
 SET(LIB_DIRS)
+SET(PROJECT_STATIC ${PROJECT_NAME}_static)
 cmake_policy(SET CMP0077 NEW)
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
@@ -19,13 +20,16 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Android")
     if (NOT DEFINED ANDROID_PLATFORM)
         SET(ANDROID_PLATFORM 26)
     endif ()
+    set(BUILD_TESTS OFF)
     SET(ANDROID_STL c++_static)
-    SET(ENABLE_FLOAT ON)
+    set(ENABLE_FLOAT OFF)
     set(BUILD_SHARED_LIBS OFF)
 
     message(STATUS "ANDROID_PLATFORM=${ANDROID_PLATFORM}")
-    add_subdirectory("third_party/fftw-3.3.10")
-
+    add_subdirectory("third_party/fftw-3.3.10/")
+    set(ENABLE_FLOAT ON)
+    set(BUILD_TESTS OFF)
+    add_subdirectory("third_party/fftw-3.3.10/" "third_party/fftwf-3.3.10/")
 
     list(APPEND LIBS fftw3 fftw3f)
 endif()
@@ -61,7 +65,7 @@ add_definitions(-DVKFFT_BACKEND=${VKFFT_BACKEND})
 message(STATUS "CMAKE_INSTALL_BINDIR=${CMAKE_INSTALL_BINDIR}")
 
 aux_source_directory(./src SRC_EASY_FFT)
-#add_library(${PROJECT_NAME} ${SRC_EASY_FFT})
+add_library(${PROJECT_STATIC} STATIC ${SRC_EASY_FFT})
 add_library(${PROJECT_NAME} SHARED ${SRC_EASY_FFT})
 
 
@@ -107,6 +111,11 @@ target_link_directories(${PROJECT_NAME} PUBLIC ${LIB_DIRS})
 target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDE_DIRS})
 message(STATUS "LIBS: ${LIBS}")
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBS})
+
+target_link_directories(${PROJECT_STATIC} PUBLIC ${LIB_DIRS})
+target_include_directories(${PROJECT_STATIC} PRIVATE ${INCLUDE_DIRS})
+target_link_libraries(${PROJECT_STATIC} PRIVATE ${LIBS})
+
 INSTALL(
         FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/src/include/easyFFT.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
