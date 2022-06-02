@@ -4,7 +4,6 @@
 
 #include "PlanFloat.h"
 #include <iostream>
-#include "PlanComplex.hpp"
 #include "fftw3.h"
 
 
@@ -16,11 +15,9 @@ PlanFloat::PlanFloat(FFTPlanConfig config,
     Plan<ComplexF>(config, FFTW_PLAN_TYPE_F,
                        in_complex, in_size, out_complex, out_size) {
 
-    std::cout<< "create PlanFloat"<< std::endl;
 }
 
 PlanFloat::~PlanFloat() {
-    std::cout<< "destroy PlanFloat"<< std::endl;
 }
 
 
@@ -33,7 +30,6 @@ void *PlanFloat::get_fftw_plan(FFTW_PLAN_PARAMS) {
 }
 
 void PlanFloat::cpu_plan_execute() {
-    std::cout<< "destroy fftwf_plan"<< std::endl;
     auto plan = (fftwf_plan) originPlan;
     fftwf_execute(plan);
 }
