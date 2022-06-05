@@ -1,6 +1,3 @@
-cmake_minimum_required(VERSION 3.23)
-
-
 SET(LIBS)
 SET(INCLUDE_DIRS)
 SET(LIB_DIRS)
@@ -12,7 +9,6 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Android")
     if (NOT DEFINED ANDROID_PLATFORM)
         SET(ANDROID_PLATFORM 26)
     endif ()
-    SET(ANDROID_STL c++_static)
     message(STATUS "ANDROID_PLATFORM=${ANDROID_PLATFORM}")
     add_subdirectory("third_party/fftw-3.3.10")
     #    SET(CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/${ANDROID_NDK_ABI_NAME})

@@ -13,6 +13,13 @@
 #include "fftw3.h"
 #include "vkFFT.h"
 #include "CLUtils.hpp"
+#include "utils/Device.hpp"
+#if VKFFT_BACKEND==0
+#include "utils/vulkan_tools.hpp"
+#elif  VKFFT_BACKEND==3
+#include "utils/opencl_tools.hpp"
+#endif
+
 
 
 enum FFTW_PLAN_TYPE{
@@ -111,29 +118,14 @@ protected:
     T* data_out;
     const uint64_t data_out_size;
     const FFTW_PLAN_TYPE fftw_plan_type;
-
+    easyfft::Device driver_device;
     virtual void cpu_plan_execute()=0;
     virtual void gpu_plan_execute(){
-#if VKFFT_BACKEND==3
-        auto err = clEnqueueWriteBuffer(queue, buffer, CL_TRUE, 0, buffer_size,
-                                   data_in, 0, nullptr, NULL);
-        handle_cl_err(err);
-        VkFFTLaunchParams launchParams = {};
-        launchParams.buffer = &buffer;
 
-        launchParams.commandQueue = &queue;
-        err = VkFFTAppend(vk_app.get(), -1, &launchParams);
-        handle_vk_err(err);
-
-/* Wait for calculations to be finished. */
-        err = clFinish(queue);
-        handle_cl_err(err);
-
-        /* Fetch results of calculations. */
-        err = clEnqueueReadBuffer( queue, buffer, CL_TRUE, 0,
-                                   buffer_size, data_out, 0, nullptr, NULL );
-        handle_cl_err(err);
-
+#if VKFFT_BACKEND==0
+    easyfft::vulcan::execute(&driver_device, vk_app.get(), data_in, data_out);
+#elif VKFFT_BACKEND==3
+       easyfft::opencl::execute(&driver_device, vk_app.get(), data_in, data_out);
 #endif
     }
 
@@ -173,81 +165,8 @@ private:
     }
     std::shared_ptr<VkFFTApplication>  vk_app;
 
-    static void handle_vk_err(int err){
-        if (err != VKFFT_SUCCESS){
-            std::strstream s;
-            s << "VKFFT error: (" << err << ")";
 
-            throw Exception(s.str(), VKFFT);
-        }
-    }
-
-
-#if VKFFT_BACKEND==3
-    cl_mem buffer= nullptr;
-    uint64_t buffer_size = 0;
-    cl_context ctx = nullptr;
-    cl_command_queue queue = nullptr;
-    // opencl
-    void chose_gpu_plan(){
-        cl_int err;
-        cl_device_id device = nullptr;
-        cl_context_properties props[3] = { CL_CONTEXT_PLATFORM, 0, 0 };
-
-        cl_mem bufX;
-        float *X;
-        cl_event event = nullptr;
-        int ret = 0;
-        size_t N = 16;
-        std::vector<std::shared_ptr<DeviceInfo>> device_infos;
-
-        size_t clLengths[1] = {N};
-
-        cl_uint platform_num;
-
-        /* Setup OpenCL environment. */
-        err = clGetPlatformIDs( 0, nullptr, &platform_num );
-        if (err == CL_DEVICE_NOT_FOUND || platform_num==0){
-            throw Exception("no openCL device", NO_CL_DEVICE);
-        }
-
-        handle_cl_err(err);
-
-        std::vector<cl_platform_id> platforms(platform_num);
-        err = clGetPlatformIDs( platform_num, &platforms[0], nullptr);
-        handle_cl_err(err);
-        uint32_t max_compute_units = 0;
-
-        for (auto platform: platforms) {
-            cl_uint device_num;
-            err = clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU, 0, nullptr, &device_num);
-            if (err == CL_DEVICE_NOT_FOUND){
-                continue;
-            }
-            handle_cl_err(err);
-
-            std::vector<cl_device_id> devices(device_num);
-            err = clGetDeviceIDs( platform, CL_DEVICE_TYPE_GPU,device_num, &devices[0], nullptr);
-            handle_cl_err(err);
-
-            for (auto device_id: devices) {
-                auto info = getDeviceInfo(device_id);
-                device_infos.push_back(info);
-
-                if (info->max_compute_units > max_compute_units){
-                    device = device_id;
-                    device_name = info->name;
-                }
-            }
-        }
-
-
-        ctx = clCreateContext(nullptr, 1, &device, nullptr, nullptr, &err);
-        handle_cl_err(err);
-
-        queue = clCreateCommandQueue( ctx, device, 0, &err);
-        handle_cl_err(err);
-
+    void chose_gpu_plan() {
         VkFFTConfiguration configuration = {};
         vk_app = std::make_shared<VkFFTApplication>();
 
@@ -260,47 +179,28 @@ private:
             configuration.size[0] = size;
         }
 
-        buffer_size = sizeof(T) * number_batches;
+        driver_device.buffer_size = sizeof(T) * number_batches;
         for (auto size: shape) {
-            buffer_size *= size;
+            driver_device.buffer_size *= size;
         }
 
-        //Device management + code submission
-        configuration.device = &device;
-        configuration.context = &ctx;
 
-
-        buffer = clCreateBuffer(ctx, CL_MEM_READ_WRITE, buffer_size, nullptr, &err);
-        handle_cl_err(err);
-
-        configuration.buffer = &buffer;
-        configuration.bufferSize = &buffer_size;
+        configuration.bufferSize = &driver_device.buffer_size;
         configuration.numberBatches = number_batches;
 
-        err = initializeVkFFT(vk_app.get(), configuration);
+
+#if VKFFT_BACKEND == 0 // vulkan
+       easyfft::vulcan::initDevice(&driver_device, configuration);
+
+#elif VKFFT_BACKEND == 3 // opencl
+        easyfft::opencl::initDevice(&driver_device, configuration);
+#endif
+
+
+        auto err = initializeVkFFT(vk_app.get(), configuration);
         handle_vk_err(err);
-
-//    err = clEnqueueWriteBuffer(queue, buffer, CL_TRUE, 0, bufferSize,
-//                               buffer_input.data(), 0, nullptr, NULL);
-//    if (err != CL_SUCCESS) return VKFFT_ERROR_FAILED_TO_COPY;
-//
-
-//    if (err != VKFFT_SUCCESS) return err;
-//
-//    VkFFTLaunchParams launchParams = {};
-//    launchParams.buffer = &buffer;
-//
-//    launchParams.commandQueue = &queue;
     }
 
-#endif
-
-#if VKFFT_BACKEND==0
-    // vulkan
-    void chose_gpu_plan(){
-
-    }
-#endif
     void destroy_cpu_plan(){
         if (originPlan != nullptr){
             switch (fftw_plan_type) {
@@ -320,9 +220,7 @@ private:
         /* Release OpenCL memory objects. */
 
 #if VKFFT_BACKEND==3
-        clReleaseMemObject( buffer);
-        clReleaseCommandQueue( queue );
-        clReleaseContext( ctx );
+        easyfft::opencl::closeDevice(&driver_device);
 #endif
 
         deleteVkFFT(vk_app.get());

@@ -1,9 +1,8 @@
-cmake_minimum_required(VERSION 3.23)
+cmake_minimum_required(VERSION 3.21)
 project(easyFFT)
 
 set(CMAKE_CXX_STANDARD 11)
 option (BUILD_TESTS "Build tests" ON)
-
 SET(LIBS)
 SET(INCLUDE_DIRS)
 SET(LIB_DIRS)
@@ -126,7 +125,9 @@ install(TARGETS ${PROJECT_NAME}
 install(TARGETS ${PROJECT_STATIC}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
-if(${CMAKE_BUILD_TYPE} EQUAL "Debug")
+
+
+if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     add_subdirectory(test)
 endif()
 

@@ -2,21 +2,26 @@
 #define Exception_HPP
 
 #include "include/easyFFT.h"
+#include "vkFFT.h"
 #include <string>
+#include <stdexcept>
 
-class Exception{
+class Exception: public std::runtime_error{
 public:
     Exception(const char * msg, FFT_ERROR_CODE error_code):
-        error_code(error_code),
-        msg(msg){
-    }
+        runtime_error(msg),
+        error_code(error_code){
+
+    };
+
     const FFT_ERROR_CODE error_code;
-    const char * what() const noexcept {
-        return msg.data();
-    }
-
-private:
-    std::string msg;
 };
+static void handle_vk_err(int err){
+    if (err != VKFFT_SUCCESS){
+        std::strstream s;
+        s << "VKFFT error: (" << err << ")";
 
+        throw Exception(s.str(), VKFFT);
+    }
+}
 #endif
