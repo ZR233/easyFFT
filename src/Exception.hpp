@@ -11,17 +11,23 @@ public:
     Exception(const char * msg, FFT_ERROR_CODE error_code):
         runtime_error(msg),
         error_code(error_code){
-
     };
 
     const FFT_ERROR_CODE error_code;
 };
-static void handle_vk_err(int err){
-    if (err != VKFFT_SUCCESS){
-        std::strstream s;
-        s << "VKFFT error: (" << err << ")";
 
-        throw Exception(s.str(), VKFFT);
+
+static void handle_vkfft_err(enum VkFFTResult err){
+
+    switch (err) {
+        case VKFFT_SUCCESS:
+            return;
+        case VKFFT_ERROR_MALLOC_FAILED:
+            throw Exception("", FFT_ERROR_CODE::MALLOC_FAILED);
+        default:
+            std::strstream ss;
+            ss << "(" << err << ")";
+            throw Exception(ss.str(), FFT_ERROR_CODE::VKFFT);
     }
 }
 #endif

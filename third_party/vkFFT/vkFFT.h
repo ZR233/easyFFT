@@ -157,7 +157,7 @@ typedef struct {
 	uint64_t numberBatches;// N - used to perform multiple batches of initial data. Default 1
 	uint64_t useUint64;//use 64-bit addressing mode in generated kernels
 	uint64_t omitDimension[3];//disable FFT for this dimension (0 - FFT enabled, 1 - FFT disabled). Default 0. Doesn't work for R2C dimension 0 for now. Doesn't work with convolutions.
-	uint64_t fixMaxRadixBluestein;//controls the padding of sequences in Bluestein convolution. If specified, padded sequence will be made of up to fixMaxRadixBluestein primes. Default: 2 for CUDA and Vulkan/OpenCL/HIP up to 1048576 combined dimension FFT system, 7 for Vulkan/OpenCL/HIP past after. Min = 2, Max = 13.
+	uint64_t fixMaxRadixBluestein;//controls the padding of sequences in Bluestein convolution. If specified, padded sequence will be made of up to fixMaxRadixBluestein primes. Default: 2 for CUDA and Vulkan/OPEN_CL/HIP up to 1048576 combined dimension FFT system, 7 for Vulkan/OPEN_CL/HIP past after. Min = 2, Max = 13.
 	uint64_t performBandwidthBoost;//try to reduce coalsesced number by a factor of X to get bigger sequence in one upload for strided axes. Default: -1 for DCT, 2 for Bluestein's algorithm (or -1 if DCT), 0 otherwise 
 
 	uint64_t doublePrecision; //perform calculations in double precision (0 - off, 1 - on).
@@ -187,7 +187,7 @@ typedef struct {
 	uint64_t saveApplicationToString;//will save all compiled binaries to VkFFTApplication.saveApplicationString (will be allocated by VkFFT, deallocated with deleteVkFFT call). (0 - off, 1 - on)
 
 	uint64_t loadApplicationFromString;//will load all binaries from loadApplicationString instead of recompiling them (must be allocated by user, must contain what saveApplicationToString call generated previously in VkFFTApplication.saveApplicationString). (0 - off, 1 - on). Mutually exclusive with saveApplicationToString
-	void* loadApplicationString;//memory array (uint32_t* for Vulkan, char* for CUDA/HIP/OpenCL) through which user can load VkFFT binaries, must be provided by user if loadApplicationFromString = 1.
+	void* loadApplicationString;//memory array (uint32_t* for Vulkan, char* for CUDA/HIP/OPEN_CL) through which user can load VkFFT binaries, must be provided by user if loadApplicationFromString = 1.
 
 	//optional zero padding control parameters: (default 0 if not stated otherwise)
 	uint64_t performZeropadding[3]; // don't read some data/perform computations if some input sequences are zeropadded for each axis (0 - off, 1 - on)
@@ -662,7 +662,7 @@ typedef struct {
 	uint64_t currentApplicationStringPos;
 
 	uint64_t applicationStringSize;//size of saveApplicationString in bytes
-	void* saveApplicationString;//memory array(uint32_t* for Vulkan, char* for CUDA/HIP/OpenCL) through which user can access VkFFT generated binaries. (will be allocated by VkFFT, deallocated with deleteVkFFT call)
+	void* saveApplicationString;//memory array(uint32_t* for Vulkan, char* for CUDA/HIP/OPEN_CL) through which user can access VkFFT generated binaries. (will be allocated by VkFFT, deallocated with deleteVkFFT call)
 } VkFFTApplication;
 
 static inline VkFFTResult VkAppendLine(VkFFTSpecializationConstantsLayout* sc) {
@@ -7703,7 +7703,7 @@ static inline VkFFTResult appendReadDataVkFFT(VkFFTSpecializationConstantsLayout
 					if (res != VKFFT_SUCCESS) return res;
 					res = appendZeropadStartReadWriteStage(sc, 1);
 					if (res != VKFFT_SUCCESS) return res;
-#if(!((VKFFT_BACKEND==3)||(VKFFT_BACKEND==4)))//OpenCL and Level Zero are  not handling barrier with thread-conditional writes to local memory - so this is a work-around
+#if(!((VKFFT_BACKEND==3)||(VKFFT_BACKEND==4)))//OPEN_CL and Level Zero are  not handling barrier with thread-conditional writes to local memory - so this is a work-around
 					if (sc->inputBufferBlockNum == 1)
 						sc->tempLen = sprintf(sc->tempStr, "		%s.x = %s%s[%s]%s;\n", sc->regIDs[0], convTypeLeft, inputsStruct, sc->inoutID, convTypeRight);
 					else
@@ -7728,7 +7728,7 @@ static inline VkFFTResult appendReadDataVkFFT(VkFFTSpecializationConstantsLayout
 						if (res != VKFFT_SUCCESS) return res;
 					}
 #endif
-#if(!((VKFFT_BACKEND==3)||(VKFFT_BACKEND==4)))//OpenCL and Level Zero are  not handling barrier with thread-conditional writes to local memory - so this is a work-around
+#if(!((VKFFT_BACKEND==3)||(VKFFT_BACKEND==4)))//OPEN_CL and Level Zero are  not handling barrier with thread-conditional writes to local memory - so this is a work-around
 					if (sc->axisSwapped) {
 						//sc->tempLen = sprintf(sc->tempStr, "		sdataID = (((combinedID %% %" PRIu64 ") %% 2) * %" PRIu64 " + (1-2*((combinedID %% %" PRIu64 ") %% 2)) * ((combinedID %% %" PRIu64 ")/2)) * sharedStride + (combinedID / %" PRIu64 ");\n", sc->fftDim, sc->fftDim - 1, sc->fftDim, sc->fftDim, sc->fftDim);
 						sc->tempLen = sprintf(sc->tempStr, "		sdataID = ((combinedID %% %" PRIu64 ")/2) * sharedStride + (combinedID / %" PRIu64 ");\n", 2 * sc->fftDim, 2 * sc->fftDim);
@@ -7785,7 +7785,7 @@ static inline VkFFTResult appendReadDataVkFFT(VkFFTSpecializationConstantsLayout
 						sc->tempLen = sprintf(sc->tempStr, "		}\n");
 						res = VkAppendLine(sc);
 						if (res != VKFFT_SUCCESS) return res;
-						sc->tempLen = sprintf(sc->tempStr, "		if (((combinedID %% %" PRIu64 ")%%2) == 1) {\n", 2 * sc->fftDim);//another OpenCL bugfix
+						sc->tempLen = sprintf(sc->tempStr, "		if (((combinedID %% %" PRIu64 ")%%2) == 1) {\n", 2 * sc->fftDim);//another OPEN_CL bugfix
 						res = VkAppendLine(sc);
 						if (res != VKFFT_SUCCESS) return res;
 						sc->tempLen = sprintf(sc->tempStr, "		sdata[sdataID].y = 0;\n");
@@ -7819,7 +7819,7 @@ static inline VkFFTResult appendReadDataVkFFT(VkFFTSpecializationConstantsLayout
 					}
 				}
 			}
-#if((VKFFT_BACKEND==3)||(VKFFT_BACKEND==4))//OpenCL is not handling barrier with thread-conditional writes to local memory - so this is a work-around
+#if((VKFFT_BACKEND==3)||(VKFFT_BACKEND==4))//OPEN_CL is not handling barrier with thread-conditional writes to local memory - so this is a work-around
 			for (uint64_t k = 0; k < sc->registerBoost; k++) {
 				for (uint64_t i = 0; i < 2 * sc->min_registers_per_thread; i++) {
 
@@ -7928,7 +7928,7 @@ static inline VkFFTResult appendReadDataVkFFT(VkFFTSpecializationConstantsLayout
 						sc->tempLen = sprintf(sc->tempStr, "		}\n");
 						res = VkAppendLine(sc);
 						if (res != VKFFT_SUCCESS) return res;
-						sc->tempLen = sprintf(sc->tempStr, "		if (((combinedID %% %" PRIu64 ")%%2) == 1) {\n", 2 * sc->fftDim);//another OpenCL bugfix
+						sc->tempLen = sprintf(sc->tempStr, "		if (((combinedID %% %" PRIu64 ")%%2) == 1) {\n", 2 * sc->fftDim);//another OPEN_CL bugfix
 						res = VkAppendLine(sc);
 						if (res != VKFFT_SUCCESS) return res;
 						sc->tempLen = sprintf(sc->tempStr, "		sdata[sdataID].y = 0;\n");
@@ -8072,7 +8072,7 @@ static inline VkFFTResult appendReadDataVkFFT(VkFFTSpecializationConstantsLayout
 						sc->tempLen = sprintf(sc->tempStr, "		}\n");
 						res = VkAppendLine(sc);
 						if (res != VKFFT_SUCCESS) return res;
-						sc->tempLen = sprintf(sc->tempStr, "		if (((combinedID %% %" PRIu64 ")%%2) == 1) {\n", 2 * sc->fftDim);//another OpenCL bugfix
+						sc->tempLen = sprintf(sc->tempStr, "		if (((combinedID %% %" PRIu64 ")%%2) == 1) {\n", 2 * sc->fftDim);//another OPEN_CL bugfix
 						res = VkAppendLine(sc);
 						if (res != VKFFT_SUCCESS) return res;
 						sc->tempLen = sprintf(sc->tempStr, "		sdata[sdataID].y = 0;\n");
@@ -8225,7 +8225,7 @@ static inline VkFFTResult appendReadDataVkFFT(VkFFTSpecializationConstantsLayout
 					sc->tempLen = sprintf(sc->tempStr, "		sdata[sdataID].x = %s.x;\n", sc->regIDs[i + k * sc->registers_per_thread]);
 					res = VkAppendLine(sc);
 					if (res != VKFFT_SUCCESS) return res;
-#if(!((VKFFT_BACKEND==3)||(VKFFT_BACKEND==4)))//OpenCL and Level Zero are  not handling barrier with thread-conditional writes to local memory - so this is a work-around
+#if(!((VKFFT_BACKEND==3)||(VKFFT_BACKEND==4)))//OPEN_CL and Level Zero are  not handling barrier with thread-conditional writes to local memory - so this is a work-around
 					if (sc->axisSwapped) {
 						sc->tempLen = sprintf(sc->tempStr, "		sdataID = (%" PRIu64 " - combinedID %% %" PRIu64 ") * sharedStride + (combinedID / %" PRIu64 ");\n", sc->fftDim, sc->fftDim, sc->fftDim);
 					}
@@ -8494,7 +8494,7 @@ static inline VkFFTResult appendReadDataVkFFT(VkFFTSpecializationConstantsLayout
 
 					res = appendZeropadStartReadWriteStage(sc, 1);
 					if (res != VKFFT_SUCCESS) return res;
-#if(!((VKFFT_BACKEND==3)||(VKFFT_BACKEND==4)))//OpenCL and Level Zero are  not handling barrier with thread-conditional writes to local memory - so this is a work-around
+#if(!((VKFFT_BACKEND==3)||(VKFFT_BACKEND==4)))//OPEN_CL and Level Zero are  not handling barrier with thread-conditional writes to local memory - so this is a work-around
 					if (sc->inputBufferBlockNum == 1)
 						sc->tempLen = sprintf(sc->tempStr, "		%s.x = %s%s[%s]%s;\n", sc->regIDs[0], convTypeLeft, inputsStruct, sc->inoutID, convTypeRight);
 					else
@@ -8519,7 +8519,7 @@ static inline VkFFTResult appendReadDataVkFFT(VkFFTSpecializationConstantsLayout
 						if (res != VKFFT_SUCCESS) return res;
 					}
 #endif
-#if(!((VKFFT_BACKEND==3)||(VKFFT_BACKEND==4)))//OpenCL and Level Zero are  not handling barrier with thread-conditional writes to local memory - so this is a work-around
+#if(!((VKFFT_BACKEND==3)||(VKFFT_BACKEND==4)))//OPEN_CL and Level Zero are  not handling barrier with thread-conditional writes to local memory - so this is a work-around
 					sc->tempLen = sprintf(sc->tempStr, "		sdataID = ((combinedID / %" PRIu64 ")/2) * sharedStride + (combinedID %% %" PRIu64 ");\n", sc->localSize[0], sc->localSize[0]);
 
 					res = VkAppendLine(sc);
@@ -8581,7 +8581,7 @@ static inline VkFFTResult appendReadDataVkFFT(VkFFTSpecializationConstantsLayout
 					}
 				}
 			}
-#if((VKFFT_BACKEND==3)||(VKFFT_BACKEND==4))//OpenCL is not handling barrier with thread-conditional writes to local memory - so this is a work-around
+#if((VKFFT_BACKEND==3)||(VKFFT_BACKEND==4))//OPEN_CL is not handling barrier with thread-conditional writes to local memory - so this is a work-around
 			for (uint64_t k = 0; k < sc->registerBoost; k++) {
 				for (uint64_t i = 0; i < 2 * sc->min_registers_per_thread; i++) {
 
@@ -8887,7 +8887,7 @@ static inline VkFFTResult appendReadDataVkFFT(VkFFTSpecializationConstantsLayout
 					sc->tempLen = sprintf(sc->tempStr, "		sdata[sdataID].x = %s.x;\n", sc->regIDs[i + k * sc->registers_per_thread]);
 					res = VkAppendLine(sc);
 					if (res != VKFFT_SUCCESS) return res;
-#if(!((VKFFT_BACKEND==3)||(VKFFT_BACKEND==4)))//OpenCL and Level Zero are  not handling barrier with thread-conditional writes to local memory - so this is a work-around
+#if(!((VKFFT_BACKEND==3)||(VKFFT_BACKEND==4)))//OPEN_CL and Level Zero are  not handling barrier with thread-conditional writes to local memory - so this is a work-around
 					sc->tempLen = sprintf(sc->tempStr, "		sdataID = (%" PRIu64 " - combinedID / %" PRIu64 ") * sharedStride + (combinedID %% %" PRIu64 ");\n", sc->fftDim, sc->localSize[0], sc->localSize[0]);
 
 					res = VkAppendLine(sc);

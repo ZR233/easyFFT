@@ -46,12 +46,15 @@ message(STATUS "OpenCL=${OpenCL_FOUND}")
 message(STATUS "Vulkan=${Vulkan_FOUND}")
 
 
-if (OpenCL_FOUND)
-    SET(VKFFT_BACKEND_BK 3)
-endif()
 if (Vulkan_FOUND)
     SET(VKFFT_BACKEND_BK 0)
+elseif(OpenCL_FOUND)
+    SET(VKFFT_BACKEND_BK 3)
+else()
+    message(FATAL_ERROR "No OpenCL or Vulkan")
 endif()
+
+
 
 if (NOT DEFINED VKFFT_BACKEND)
     SET(VKFFT_BACKEND ${VKFFT_BACKEND_BK})

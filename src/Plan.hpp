@@ -121,11 +121,19 @@ protected:
     easyfft::Device driver_device;
     virtual void cpu_plan_execute()=0;
     virtual void gpu_plan_execute(){
-
+        auto inverse = 0;
+        switch (sign) {
+            case FORWARD:
+                inverse = -1;
+                break;
+            case BACKWARD:
+                inverse = 1;
+                break;
+        }
 #if VKFFT_BACKEND==0
-    easyfft::vulcan::execute(&driver_device, vk_app.get(), data_in, data_out);
+    easyfft::vulcan::execute(&driver_device, vk_app.get(), data_in, data_out, inverse);
 #elif VKFFT_BACKEND==3
-       easyfft::opencl::execute(&driver_device, vk_app.get(), data_in, data_out);
+       easyfft::opencl::execute(&driver_device, vk_app.get(), data_in, data_out, inverse);
 #endif
     }
 
@@ -198,7 +206,7 @@ private:
 
 
         auto err = initializeVkFFT(vk_app.get(), configuration);
-        handle_vk_err(err);
+        handle_vkfft_err(err);
     }
 
     void destroy_cpu_plan(){
@@ -217,7 +225,7 @@ private:
         }
     }
     void destroy_gpu_plan(){
-        /* Release OpenCL memory objects. */
+        /* Release OPEN_CL memory objects. */
 
 #if VKFFT_BACKEND==3
         easyfft::opencl::closeDevice(&driver_device);

@@ -14,6 +14,20 @@
 namespace easyfft {
     namespace vulcan {
 
+        static void handle_vk_err(enum VkResult err){
+            switch (err) {
+                case VK_SUCCESS:
+                    return;
+                case VK_ERROR_OUT_OF_DEVICE_MEMORY:
+                    throw Exception("", FFT_ERROR_CODE::OUT_OF_DEVICE_MEMORY);
+                default:
+                    std::strstream ss;
+                    ss << "(" << err << ")";
+                    throw Exception(ss.str(), FFT_ERROR_CODE::VULKAN);
+            }
+        }
+
+
         static VkResult checkValidationLayerSupport() {
             //check if validation layers are supported when an instance is created
             uint32_t layerCount;
@@ -21,8 +35,8 @@ namespace easyfft {
 
             std::vector<VkLayerProperties> availableLayers(layerCount);
 
-//    VkLayerProperties* availableLayers = (VkLayerProperties*)malloc(sizeof(VkLayerProperties) * layerCount);
-//    if (!availableLayers) return VK_INCOMPLETE;
+            //    VkLayerProperties* availableLayers = (VkLayerProperties*)malloc(sizeof(VkLayerProperties) * layerCount);
+            //    if (!availableLayers) return VK_INCOMPLETE;
             vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
 
             for (uint64_t i = 0; i < layerCount; i++) {
@@ -42,16 +56,6 @@ namespace easyfft {
             if (vkGPU->enableValidationLayers) {
                 extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
             }
-//    switch (sample_id) {
-//#if (VK_API_VERSION>10)
-//        case 2: case 102:
-//		extensions.push_back("VK_KHR_get_physical_device_properties2");
-//		break;
-//#endif
-//        default:
-//            break;
-//    }
-
 
             return extensions;
         }
@@ -60,14 +64,14 @@ namespace easyfft {
                                                             VkDebugUtilsMessageTypeFlagsEXT messageType,
                                                             const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
                                                             void *pUserData) {
-            printf("validation layer: %s\n", pCallbackData->pMessage);
+//            printf("validation layer: %s\n", pCallbackData->pMessage);
             return VK_FALSE;
         }
 
 
         static VkResult createInstance(easyfft::Device *vkGPU) {
             //create instance - a connection between the application and the Vulkan library
-            VkResult res = VK_SUCCESS;
+            VkResult res;
             //check if validation layers are supported
             if (vkGPU->enableValidationLayers == 1) {
                 res = checkValidationLayerSupport();
@@ -207,9 +211,9 @@ namespace easyfft {
 
         static VkResult createDevice(easyfft::Device *vkGPU) {
             //create logical device representation
-            VkResult res = VK_SUCCESS;
+
             VkDeviceQueueCreateInfo queueCreateInfo = {VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO};
-            res = getComputeQueueFamilyIndex(vkGPU);
+            auto res = getComputeQueueFamilyIndex(vkGPU);
             if (res != VK_SUCCESS) return res;
             queueCreateInfo.queueFamilyIndex = (uint32_t) vkGPU->queueFamilyIndex;
             queueCreateInfo.queueCount = 1;
@@ -229,26 +233,23 @@ namespace easyfft {
             if (res != VK_SUCCESS) return res;
             vkGetDeviceQueue(vkGPU->device, (uint32_t) vkGPU->queueFamilyIndex, 0, &vkGPU->queue);
 
-
             return res;
         }
 
         static VkResult createFence(easyfft::Device *vkGPU) {
             //create fence for synchronization
-            VkResult res = VK_SUCCESS;
             VkFenceCreateInfo fenceCreateInfo = {VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
             fenceCreateInfo.flags = 0;
-            res = vkCreateFence(vkGPU->device, &fenceCreateInfo, nullptr, &vkGPU->fence);
+            auto res = vkCreateFence(vkGPU->device, &fenceCreateInfo, nullptr, &vkGPU->fence);
             return res;
         }
 
         static VkResult createCommandPool(easyfft::Device *vkGPU) {
             //create a place, command buffer memory is allocated from
-            VkResult res = VK_SUCCESS;
             VkCommandPoolCreateInfo commandPoolCreateInfo = {VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO};
             commandPoolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
             commandPoolCreateInfo.queueFamilyIndex = (uint32_t) vkGPU->queueFamilyIndex;
-            res = vkCreateCommandPool(vkGPU->device, &commandPoolCreateInfo, nullptr, &vkGPU->commandPool);
+            auto res = vkCreateCommandPool(vkGPU->device, &commandPoolCreateInfo, nullptr, &vkGPU->commandPool);
             return res;
         }
 
@@ -272,7 +273,7 @@ namespace easyfft {
                     return;
                 }
             }
-            throw Exception("VKFFT_ERROR_FAILED_TO_FIND_MEMORY", FFT_ERROR_CODE::VKFFT);
+            throw Exception("VKFFT_ERROR_FAILED_TO_FIND_MEMORY", FFT_ERROR_CODE::VULKAN);
         }
 
         static void allocateBuffer(
@@ -284,8 +285,6 @@ namespace easyfft {
                 uint64_t size) {
 
             //allocate the buffer used by the GPU with specified properties
-            VkFFTResult resFFT = VKFFT_SUCCESS;
-            VkResult res = VK_SUCCESS;
             uint32_t queueFamilyIndices;
             VkBufferCreateInfo bufferCreateInfo = {VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
             bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
@@ -293,7 +292,7 @@ namespace easyfft {
             bufferCreateInfo.pQueueFamilyIndices = &queueFamilyIndices;
             bufferCreateInfo.size = size;
             bufferCreateInfo.usage = usageFlags;
-            res = vkCreateBuffer(vkGPU->device, &bufferCreateInfo, nullptr, buffer);
+            auto res = vkCreateBuffer(vkGPU->device, &bufferCreateInfo, nullptr, buffer);
             handle_vk_err(res);
 
             VkMemoryRequirements memoryRequirements = {0};
@@ -310,22 +309,22 @@ namespace easyfft {
             handle_vk_err(res);
         }
 
-        static VkResult initDevice(easyfft::Device *driver_device, VkFFTConfiguration &configuration) {
+        static void initDevice(easyfft::Device *driver_device, VkFFTConfiguration &configuration) {
             //create instance - a connection between the application and the Vulkan library
             auto res = createInstance(driver_device);
-            if (res != VK_SUCCESS) return res;
-            res = setupDebugMessenger(driver_device);
-            if (res != VK_SUCCESS) return res;
+            handle_vk_err(res);
+//            res = setupDebugMessenger(driver_device);
+//            handle_vk_err(res);
             res = findPhysicalDevice(driver_device);
-            if (res != VK_SUCCESS) return res;
+            handle_vk_err(res);
             res = createDevice(driver_device);
-            if (res != VK_SUCCESS) return res;
+            handle_vk_err(res);
             //create fence for synchronization
             res = createFence(driver_device);
-            if (res != VK_SUCCESS) return res;
+            handle_vk_err(res);
             //create a place, command buffer memory is allocated from
             res = createCommandPool(driver_device);
-            if (res != VK_SUCCESS) return res;
+            handle_vk_err(res);
             vkGetPhysicalDeviceProperties(driver_device->physicalDevice, &driver_device->physicalDeviceProperties);
             vkGetPhysicalDeviceMemoryProperties(driver_device->physicalDevice,
                                                 &driver_device->physicalDeviceMemoryProperties);
@@ -350,13 +349,9 @@ namespace easyfft {
 
 
             configuration.buffer = &driver_device->buffer;
-
-            return VK_SUCCESS;
         }
         static void transferDataFromCPU(easyfft::Device* vkGPU, void* arr, VkBuffer* buffer, uint64_t bufferSize) {
             //a function that transfers data from the CPU to the GPU using staging buffer, because the GPU memory is not host-coherent
-            VkFFTResult resFFT = VKFFT_SUCCESS;
-            VkResult res = VK_SUCCESS;
             uint64_t stagingBufferSize = bufferSize;
             VkBuffer stagingBuffer = {nullptr };
             VkDeviceMemory stagingBufferMemory = {nullptr };
@@ -368,9 +363,8 @@ namespace easyfft {
                            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBufferSize);
 
 
-            handle_vk_err(res);
             void* data;
-            res = vkMapMemory(vkGPU->device, stagingBufferMemory, 0, stagingBufferSize, 0, &data);
+            auto res = vkMapMemory(vkGPU->device, stagingBufferMemory, 0, stagingBufferSize, 0, &data);
             handle_vk_err(res);
             memcpy(data, arr, stagingBufferSize);
             vkUnmapMemory(vkGPU->device, stagingBufferMemory);
@@ -378,7 +372,7 @@ namespace easyfft {
             commandBufferAllocateInfo.commandPool = vkGPU->commandPool;
             commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
             commandBufferAllocateInfo.commandBufferCount = 1;
-            VkCommandBuffer commandBuffer = { 0 };
+            VkCommandBuffer commandBuffer = { nullptr };
             res = vkAllocateCommandBuffers(vkGPU->device, &commandBufferAllocateInfo, &commandBuffer);
             handle_vk_err(res);
             VkCommandBufferBeginInfo commandBufferBeginInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
@@ -402,14 +396,14 @@ namespace easyfft {
             res = vkResetFences(vkGPU->device, 1, &vkGPU->fence);
             handle_vk_err(res);
             vkFreeCommandBuffers(vkGPU->device, vkGPU->commandPool, 1, &commandBuffer);
-            vkDestroyBuffer(vkGPU->device, stagingBuffer, NULL);
-            vkFreeMemory(vkGPU->device, stagingBufferMemory, NULL);
+            vkDestroyBuffer(vkGPU->device, stagingBuffer, nullptr);
+            vkFreeMemory(vkGPU->device, stagingBufferMemory, nullptr);
 
         }
         static VkFFTResult transferDataToCPU(easyfft::Device* vkGPU, void* arr, VkBuffer* buffer, uint64_t bufferSize) {
             //a function that transfers data from the GPU to the CPU using staging buffer, because the GPU memory is not host-coherent
             VkFFTResult resFFT = VKFFT_SUCCESS;
-            VkResult res = VK_SUCCESS;
+
             uint64_t stagingBufferSize = bufferSize;
             VkBuffer stagingBuffer = { nullptr };
             VkDeviceMemory stagingBufferMemory = { nullptr };
@@ -421,13 +415,13 @@ namespace easyfft {
                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                     stagingBufferSize);
 
-            if (resFFT != VKFFT_SUCCESS) return resFFT;
+
             VkCommandBufferAllocateInfo commandBufferAllocateInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
             commandBufferAllocateInfo.commandPool = vkGPU->commandPool;
             commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
             commandBufferAllocateInfo.commandBufferCount = 1;
-            VkCommandBuffer commandBuffer = { 0 };
-            res = vkAllocateCommandBuffers(vkGPU->device, &commandBufferAllocateInfo, &commandBuffer);
+            VkCommandBuffer commandBuffer = { nullptr };
+            auto res = vkAllocateCommandBuffers(vkGPU->device, &commandBufferAllocateInfo, &commandBuffer);
             if (res != VK_SUCCESS) return VKFFT_ERROR_FAILED_TO_ALLOCATE_COMMAND_BUFFERS;
             VkCommandBufferBeginInfo commandBufferBeginInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
             commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
@@ -452,15 +446,15 @@ namespace easyfft {
             vkFreeCommandBuffers(vkGPU->device, vkGPU->commandPool, 1, &commandBuffer);
             void* data;
             res = vkMapMemory(vkGPU->device, stagingBufferMemory, 0, stagingBufferSize, 0, &data);
-            if (resFFT != VKFFT_SUCCESS) return resFFT;
+            if (res != VK_SUCCESS) return VKFFT_ERROR_MALLOC_FAILED;
             memcpy(arr, data, stagingBufferSize);
             vkUnmapMemory(vkGPU->device, stagingBufferMemory);
-            vkDestroyBuffer(vkGPU->device, stagingBuffer, NULL);
-            vkFreeMemory(vkGPU->device, stagingBufferMemory, NULL);
+            vkDestroyBuffer(vkGPU->device, stagingBuffer, nullptr);
+            vkFreeMemory(vkGPU->device, stagingBufferMemory, nullptr);
             return resFFT;
         }
         template<typename T>
-        static void execute(easyfft::Device *driver_device, VkFFTApplication *vk_app, T *data_in, T *data_out) {
+        static void execute(easyfft::Device *driver_device, VkFFTApplication *vk_app, T *data_in, T *data_out, int inverse) {
             transferDataFromCPU(driver_device, data_in, &driver_device->buffer, driver_device->buffer_size);
 
 
@@ -480,8 +474,11 @@ namespace easyfft {
             launchParams.buffer = &driver_device->buffer;
 
             launchParams.commandBuffer = &commandBuffer;
-            auto err = VkFFTAppend(vk_app, -1, &launchParams);
-            handle_vk_err(err);
+
+
+
+            auto err = VkFFTAppend(vk_app, inverse, &launchParams);
+            handle_vkfft_err(err);
 
             res = vkEndCommandBuffer(commandBuffer);
             handle_vk_err(res);
@@ -498,7 +495,7 @@ namespace easyfft {
             vkFreeCommandBuffers(driver_device->device, driver_device->commandPool, 1, &commandBuffer);
 
             err = transferDataToCPU(driver_device, data_out, &driver_device->buffer, driver_device->buffer_size);
-            handle_vk_err(err);
+            handle_vkfft_err(err);
 
         }
 

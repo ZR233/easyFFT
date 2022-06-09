@@ -24,12 +24,15 @@ extern "C" {
 
 enum FFT_ERROR_CODE {
     OK,
+    OPEN_CL,
+    VULKAN,
+    VKFFT,
     IN_SIZE,
     OUT_SIZE,
-    CL,
     DIM_TOO_BIG,
-    NO_CL_DEVICE,
-    VKFFT,
+    DEVICE_NOT_FOUND,
+    MALLOC_FAILED,
+    OUT_OF_DEVICE_MEMORY,
 };
 
 enum FFT_SIGN {
@@ -63,7 +66,6 @@ struct FFTPlanDoubleR2C {
 };
 typedef float ComplexF[2];
 typedef double ComplexD[2];
-typedef float ComplexL[2];
 
 EXT enum FFT_ERROR_CODE fft_planf_init(struct FFTPlanFloat *plan,
                                       ComplexF *in_complex, uint64_t in_size,

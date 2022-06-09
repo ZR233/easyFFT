@@ -127,7 +127,7 @@ const char* MemoryString(int mem)
     switch (mem) {
     case MemoryModelSimple:     return "Simple";
     case MemoryModelGLSL450:    return "GLSL450";
-    case MemoryModelOpenCL:     return "OpenCL";
+    case MemoryModelOpenCL:     return "OPEN_CL";
     case MemoryModelVulkanKHR:  return "VulkanKHR";
 
     default: return "Bad";

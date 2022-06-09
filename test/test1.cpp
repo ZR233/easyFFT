@@ -8,7 +8,16 @@
 #include <ctime>
 #include <iostream>
 
-TEST(TestSuiteName, TestName) {
+
+
+static void handle_err(FFT_ERROR_CODE err){
+    EXPECT_EQ(err, FFT_ERROR_CODE::OK);
+}
+
+
+
+
+TEST(TestAccuracy, TestGPUFFT) {
     FFT_ERROR_CODE err;
     int shape = 4;
     int batch = 2;
@@ -47,11 +56,13 @@ TEST(TestSuiteName, TestName) {
             &plan,
             in_ptr, in.size(),
             out_ptr, out.size());
-
+    handle_err(err);
     err = fft_planf_init(
             &planG,
             inG_ptr, inG.size(),
             outG_ptr, outG.size());
+    handle_err(err);
+
     int i = 0;
 
     for (; i < shape; ++i) {
@@ -68,11 +79,96 @@ TEST(TestSuiteName, TestName) {
 
     fft_planf_execute(&plan);
     fft_planf_execute(&planG);
+
+    for (int j = 0; j < out.size(); ++j) {
+        auto fftw = out[j];
+        auto gpu = outG[j];
+
+        auto real_dis = abs(fftw.real()-gpu.real());
+        EXPECT_LT(real_dis, 0.01);
+        auto imag_dis = abs(fftw.imag()-gpu.imag());
+        EXPECT_LT(imag_dis, 0.01);
+    }
+
     fft_close_planf(&plan);
     fft_close_planf(&planG);
-    EXPECT_EQ(1, 1);
 }
+TEST(TestAccuracy, TestGPUIFFT) {
+    FFT_ERROR_CODE err;
+    int shape = 4;
+    int batch = 2;
 
+    std::vector<std::complex<float>> in(shape * batch, 0);
+    std::vector<std::complex<float>> out(in.size(), 0);
+
+    std::vector<std::complex<float>> inG(in.size(), 0);
+    std::vector<std::complex<float>> outG(in.size(), 0);
+
+
+    auto in_ptr = (ComplexF *)in.data();
+    auto out_ptr = (ComplexF *)out.data();
+    auto inG_ptr = (ComplexF *)inG.data();
+    auto outG_ptr = (ComplexF *)outG.data();
+
+    auto plan = FFTPlanFloat{
+            FFTPlanConfig{
+                    1,
+                    &shape,
+                    2,
+                    FFT_SIGN::BACKWARD,
+                    FFT_DEVICE::CPU,
+            }
+    };
+    auto planG = FFTPlanFloat{
+            FFTPlanConfig{
+                    1,
+                    &shape,
+                    2,
+                    FFT_SIGN::BACKWARD,
+                    FFT_DEVICE::GPU,
+            }
+    };
+    err = fft_planf_init(
+            &plan,
+            in_ptr, in.size(),
+            out_ptr, out.size());
+    handle_err(err);
+    err = fft_planf_init(
+            &planG,
+            inG_ptr, inG.size(),
+            outG_ptr, outG.size());
+    handle_err(err);
+
+    int i = 0;
+
+    for (; i < shape; ++i) {
+        in[i] = {(float )i, (float )-i};
+    }
+    for (; i < shape * 2; ++i) {
+        in[i] = {(float )-i, (float )i};
+    }
+
+    for (int j = 0; j < in.size(); ++j) {
+        inG[j] = in[j];
+    }
+
+
+    fft_planf_execute(&plan);
+    fft_planf_execute(&planG);
+
+    for (int j = 0; j < out.size(); ++j) {
+        auto fftw = out[j];
+        auto gpu = outG[j];
+
+        auto real_dis = abs(fftw.real()-gpu.real());
+        EXPECT_LT(real_dis, 0.01);
+        auto imag_dis = abs(fftw.imag()-gpu.imag());
+        EXPECT_LT(imag_dis, 0.01);
+    }
+
+    fft_close_planf(&plan);
+    fft_close_planf(&planG);
+}
 
 
 
