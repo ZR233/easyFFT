@@ -2,11 +2,17 @@
 <project version="4">
   <component name="PublishConfigData" remoteFilesAllowedToDisappearOnAutoupload="false">
     <serverData>
-      <paths name="Remote Host (1cb00ee0-ef68-4e12-9ae6-73b43003e4c6)">
+      <paths name="远程主机 (547114c9-a82c-467d-8729-c4bb0baf42b2)">
         <serverdata>
           <mappings>
-            <mapping local="$PROJECT_DIR$" web="/" />
+            <mapping deploy="/tmp/tmp.EYj1uEywbV" local="$PROJECT_DIR$" />
           </mappings>
+          <excludedPaths>
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-vulkan-debug" />
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-cl-debug" />
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-android-arm64-v8a-release" />
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-release-wsl" />
+          </excludedPaths>
         </serverdata>
       </paths>
     </serverData>

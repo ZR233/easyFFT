@@ -7,6 +7,7 @@
 
 #include <complex>
 #include "include/easyFFT.h"
+#include <memory>
 #include <vector>
 #include <strstream>
 #include "Exception.hpp"
