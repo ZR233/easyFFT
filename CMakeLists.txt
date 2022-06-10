@@ -109,7 +109,15 @@ IF(WIN32)
             ${FFT_DLL_DIR}/libfftw3f-3.dll
             ${FFT_DLL_DIR}/libfftw3l-3.dll DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
+    SET(FFT_LIB_OUT_DIR ${CMAKE_BINARY_DIR}/third_party/fftw-win)
+    INSTALL(
+            FILES
+            ${FFT_LIB_OUT_DIR}/libfftw3-3.lib
+            ${FFT_LIB_OUT_DIR}/libfftw3f-3.lib
+            ${FFT_LIB_OUT_DIR}/libfftw3l-3.lib DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    )
 ENDIF()
+
 message(STATUS "INCLUDE_DIRS=${INCLUDE_DIRS}")
 message(STATUS "LIB_DIRS=${LIB_DIRS}")
 target_link_directories(${PROJECT_NAME} PUBLIC ${LIB_DIRS})

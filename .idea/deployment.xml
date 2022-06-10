@@ -9,7 +9,11 @@
           </mappings>
           <excludedPaths>
             <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-vulkan-debug" />
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-vulkan-debug" />
             <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-cl-debug" />
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-cl-debug" />
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-release-wsl" />
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-android-arm64-v8a-release" />
             <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-android-arm64-v8a-release" />
             <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-release-wsl" />
           </excludedPaths>
