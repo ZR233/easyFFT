@@ -99,6 +99,12 @@ if (${VKFFT_BACKEND} EQUAL 3)
     list(APPEND INCLUDE_DIRS ${OpenCL_INCLUDE_DIRS})
     #    target_include_directories(${PROJECT_NAME} PUBLIC OpenCL_INCLUDE_DIRS)
     list(APPEND LIBS OpenCL::OpenCL)
+    message(STATUS "OpenCL_LIBRARIES=${OpenCL_LIBRARIES}")
+    INSTALL(
+            FILES
+            ${OpenCL_LIBRARIES}
+            DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
 endif ()
 
 IF(WIN32)
