@@ -9,11 +9,10 @@
 #include "include/easyFFT.h"
 #include <memory>
 #include <vector>
-#include <strstream>
+#include <sstream>
 #include "Exception.hpp"
 #include "fftw3.h"
 #include "vkFFT.h"
-#include "CLUtils.hpp"
 #include "utils/Device.hpp"
 #if VKFFT_BACKEND==0
 #include "utils/vulkan_tools.hpp"
@@ -75,16 +74,16 @@ public:
         need_size *= number_batches;
 
         if (need_size != data_in_size){
-            std::strstream s;
+            std::stringstream s;
             s << "need in size: "<< need_size << "actual: "<< data_in_size;
 
-            throw Exception(s.str(), IN_SIZE);
+            throw Exception(s.str().c_str(), IN_SIZE);
         }
         if (need_size != data_out_size){
-            std::strstream s;
+            std::stringstream s;
             s << "need out size: "<< need_size << "actual: "<< data_out_size;
 
-            throw Exception(s.str(), OUT_SIZE);
+            throw Exception(s.str().c_str(), OUT_SIZE);
         }
 
         switch (_device) {

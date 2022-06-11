@@ -25,9 +25,9 @@ static void handle_vkfft_err(enum VkFFTResult err){
         case VKFFT_ERROR_MALLOC_FAILED:
             throw Exception("", FFT_ERROR_CODE::MALLOC_FAILED);
         default:
-            std::strstream ss;
+            std::stringstream ss;
             ss << "(" << err << ")";
-            throw Exception(ss.str(), FFT_ERROR_CODE::VKFFT);
+            throw Exception(ss.str().c_str(), FFT_ERROR_CODE::VKFFT);
     }
 }
 #endif

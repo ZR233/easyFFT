@@ -21,9 +21,9 @@ namespace easyfft {
                 case VK_ERROR_OUT_OF_DEVICE_MEMORY:
                     throw Exception("", FFT_ERROR_CODE::OUT_OF_DEVICE_MEMORY);
                 default:
-                    std::strstream ss;
+                    std::stringstream ss;
                     ss << "(" << err << ")";
-                    throw Exception(ss.str(), FFT_ERROR_CODE::VULKAN);
+                    throw Exception(ss.str().c_str(), FFT_ERROR_CODE::VULKAN);
             }
         }
 

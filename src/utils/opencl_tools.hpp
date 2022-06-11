@@ -8,7 +8,7 @@
 #include "Device.hpp"
 #include "vkFFT.h"
 #include <memory>
-#include "include/easyFFT.h"
+#include "../include/easyFFT.h"
 
 
 namespace easyfft {
@@ -25,9 +25,9 @@ namespace easyfft {
                 case CL_DEVICE_NOT_FOUND:
                     throw Exception("", FFT_ERROR_CODE::DEVICE_NOT_FOUND);
                 default:
-                    std::strstream ss;
+                    std::stringstream ss;
                     ss << "(" << err << ")";
-                    throw Exception(ss.str(), FFT_ERROR_CODE::OPEN_CL);
+                    throw Exception(ss.str().c_str(), FFT_ERROR_CODE::OPEN_CL);
             }
         }
 
@@ -45,7 +45,7 @@ namespace easyfft {
             return info;
         }
 
-        static cl_int initDevice(easyfft::Device *driver_device, VkFFTConfiguration &configuration) {
+        static void initDevice(easyfft::Device *driver_device, VkFFTConfiguration &configuration) {
 
             std::vector<std::shared_ptr<DeviceInfo>> device_infos;
             cl_uint platform_num;
