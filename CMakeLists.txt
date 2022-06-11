@@ -84,6 +84,12 @@ if (${VKFFT_BACKEND} EQUAL 0)
     list(APPEND INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/third_party/glslang-master-tot/glslang/Include/)
     #    target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/glslang-master-tot/glslang/Include/)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/third_party/glslang-master-tot)
+
+    INSTALL(
+            FILES
+            ${Vulkan_LIBRARIES}
+            DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
 endif ()
 
 if (${VKFFT_BACKEND} EQUAL 3)
@@ -127,7 +133,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBS})
 
 target_link_directories(${PROJECT_STATIC} PUBLIC ${LIB_DIRS})
 target_include_directories(${PROJECT_STATIC} PRIVATE ${INCLUDE_DIRS})
-target_link_libraries(${PROJECT_STATIC} PRIVATE ${LIBS})
+target_link_libraries(${PROJECT_STATIC} PUBLIC ${LIBS})
 
 INSTALL(
         FILES
