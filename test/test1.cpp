@@ -11,7 +11,9 @@
 
 
 static void handle_err(FFT_ERROR_CODE err){
-    EXPECT_EQ(err, FFT_ERROR_CODE::OK);
+    if (err != FFT_ERROR_CODE::OK){
+        throw std::runtime_error("");
+    }
 }
 
 

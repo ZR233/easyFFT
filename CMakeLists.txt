@@ -3,6 +3,9 @@ project(easyFFT)
 
 set(CMAKE_CXX_STANDARD 11)
 option (BUILD_TESTS "Build tests" ON)
+set(BUILD_THIS_TESTS ${BUILD_TESTS})
+
+message(STATUS "BUILD_TESTS=${BUILD_THIS_TESTS}")
 SET(LIBS)
 SET(INCLUDE_DIRS)
 SET(LIB_DIRS)
@@ -137,9 +140,11 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDE_DIRS})
 message(STATUS "LIBS: ${LIBS}")
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBS})
 
-target_link_directories(${PROJECT_STATIC} PUBLIC ${LIB_DIRS})
+#target_link_directories(${PROJECT_STATIC} PUBLIC ${LIB_DIRS})
+link_directories( ${LIB_DIRS})
 target_include_directories(${PROJECT_STATIC} PRIVATE ${INCLUDE_DIRS})
 target_link_libraries(${PROJECT_STATIC} PUBLIC ${LIBS})
+#link_libraries(${PROJECT_STATIC} PUBLIC ${LIBS})
 
 INSTALL(
         FILES
@@ -153,8 +158,8 @@ install(TARGETS ${PROJECT_STATIC}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-
-if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+if(BUILD_THIS_TESTS)
+#if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     add_subdirectory(test)
 endif()
 
