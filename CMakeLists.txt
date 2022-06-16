@@ -20,13 +20,18 @@ list(APPEND INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/third_party/fftw-3.3.10/api
 IF (UNIX)
     MESSAGE(STATUS "TARGET: UNIX ")
     IF (CMAKE_SYSTEM_NAME MATCHES "Android")
+#        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+
         MESSAGE(STATUS "TARGET: Android ")
         if (NOT DEFINED ANDROID_PLATFORM)
             SET(ANDROID_PLATFORM 26)
         endif ()
 
         message(STATUS "ANDROID_PLATFORM=${ANDROID_PLATFORM}")
+#        SET(ENABLE_OPENMP ON)
+
     ENDIF()
+
     SET(BUILD_TESTS OFF)
     SET(ANDROID_STL c++_static)
     SET(ENABLE_FLOAT OFF)
@@ -103,10 +108,10 @@ if (${VKFFT_BACKEND} EQUAL 3)
     #    target_include_directories(${PROJECT_NAME} PUBLIC OpenCL_INCLUDE_DIRS)
     list(APPEND LIBS OpenCL::OpenCL)
     message(STATUS "OpenCL_LIBRARIES=${OpenCL_LIBRARIES}")
-    INSTALL(
-            FILES
-            ${OpenCL_LIBRARIES}
-            DESTINATION ${CMAKE_INSTALL_LIBDIR})
+#    INSTALL(
+#            FILES
+#            ${OpenCL_LIBRARIES}
+#            DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 endif ()
 

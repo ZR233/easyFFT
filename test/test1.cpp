@@ -7,12 +7,15 @@
 #include <complex>
 #include <ctime>
 #include <iostream>
+#include <strstream>
 
 
 
-static void handle_err(FFT_ERROR_CODE err){
-    if (err != FFT_ERROR_CODE::OK){
-        throw std::runtime_error("");
+static void handle_err(struct Result *result){
+    if (result->code != FFT_ERROR_CODE::OK){
+        std::strstream ss;
+        ss << "code: [" << result->code << "] " <<  result->msg;
+        throw std::runtime_error(ss.str());
     }
 }
 
@@ -20,7 +23,7 @@ static void handle_err(FFT_ERROR_CODE err){
 
 
 TEST(TestAccuracy, TestGPUFFT) {
-    FFT_ERROR_CODE err;
+    auto result = fft_new_result();
     int shape = 4;
     int batch = 2;
 
@@ -54,16 +57,18 @@ TEST(TestAccuracy, TestGPUFFT) {
                     FFT_DEVICE::GPU,
             }
     };
-    err = fft_planf_init(
+    fft_planf_init(
             &plan,
             in_ptr, in.size(),
-            out_ptr, out.size());
-    handle_err(err);
-    err = fft_planf_init(
+            out_ptr, out.size(), result);
+    handle_err(result);
+
+    fft_planf_init(
             &planG,
             inG_ptr, inG.size(),
-            outG_ptr, outG.size());
-    handle_err(err);
+            outG_ptr, outG.size(), result);
+
+    handle_err(result);
 
     int i = 0;
 
@@ -79,8 +84,11 @@ TEST(TestAccuracy, TestGPUFFT) {
     }
 
 
-    fft_planf_execute(&plan);
-    fft_planf_execute(&planG);
+    fft_planf_execute(&plan, result);
+    handle_err(result);
+
+    fft_planf_execute(&planG, result);
+    handle_err(result);
 
     for (int j = 0; j < out.size(); ++j) {
         auto fftw = out[j];
@@ -96,7 +104,8 @@ TEST(TestAccuracy, TestGPUFFT) {
     fft_close_planf(&planG);
 }
 TEST(TestAccuracy, TestGPUIFFT) {
-    FFT_ERROR_CODE err;
+    auto result = fft_new_result();
+
     int shape = 4;
     int batch = 2;
 
@@ -130,16 +139,16 @@ TEST(TestAccuracy, TestGPUIFFT) {
                     FFT_DEVICE::GPU,
             }
     };
-    err = fft_planf_init(
+    fft_planf_init(
             &plan,
             in_ptr, in.size(),
-            out_ptr, out.size());
-    handle_err(err);
-    err = fft_planf_init(
+            out_ptr, out.size(), result);
+    handle_err(result);
+    fft_planf_init(
             &planG,
             inG_ptr, inG.size(),
-            outG_ptr, outG.size());
-    handle_err(err);
+            outG_ptr, outG.size(), result);
+    handle_err(result);
 
     int i = 0;
 
@@ -155,8 +164,10 @@ TEST(TestAccuracy, TestGPUIFFT) {
     }
 
 
-    fft_planf_execute(&plan);
-    fft_planf_execute(&planG);
+    fft_planf_execute(&plan, result);
+    handle_err(result);
+    fft_planf_execute(&planG, result);
+    handle_err(result);
 
     for (int j = 0; j < out.size(); ++j) {
         auto fftw = out[j];
@@ -175,9 +186,10 @@ TEST(TestAccuracy, TestGPUIFFT) {
 
 
 TEST(TestSuiteName, TestBench) {
-    FFT_ERROR_CODE err;
+    auto result = fft_new_result();
+
     int shape = 4096;
-    int batch = 10;
+    int batch = 20000;
 
     std::vector<std::complex<float>> in(shape * batch, {1,1});
     std::vector<std::complex<float>> out(in.size(), 0);
@@ -186,7 +198,6 @@ TEST(TestSuiteName, TestBench) {
     std::vector<std::complex<float>> outG(in.size(), 0);
 
     char name[50];
-
 
     auto in_ptr = (ComplexF *)in.data();
     auto out_ptr = (ComplexF *)out.data();
@@ -211,45 +222,99 @@ TEST(TestSuiteName, TestBench) {
                     FFT_DEVICE::GPU,
             }
     };
-    err = fft_planf_init(
+    fft_planf_init(
             &plan,
             in_ptr, in.size(),
-            out_ptr, out.size());
-
-    err = fft_planf_init(
+            out_ptr, out.size(), result);
+    handle_err(result);
+    fft_planf_init(
             &planG,
             inG_ptr, inG.size(),
-            outG_ptr, outG.size());
-    int i = 0;
+            outG_ptr, outG.size(), result);
 
-    fft_planf_device_name(&planG, name, 50);
-
+    handle_err(result);
+    fft_planf_device_name(&planG, name, 50, result);
+    handle_err(result);
     std::cout<<"name: "<< name <<std::endl;
 
     for (int j = 0; j < batch * shape; ++j) {
             in[j] = {1, -1};
     }
 
+    for (int j = 0; j < in.size(); ++j) {
+        inG[j] = in[j];
+    }
 
+    auto Time1=clock();
+    fft_planf_execute(&plan, result);
+    handle_err(result);
+    auto Time2=clock();
+    auto Time3 = Time2-Time1;
+    std::cout<<"CPU cost: "<< Time3 <<std::endl;
 
+    Time1=clock();
+    fft_planf_execute(&planG, result);
+    handle_err(result);
+    Time2=clock();
+    Time3 = Time2-Time1;
+    std::cout<<"GPU cost: "<<Time3<<std::endl;
+
+    fft_close_planf(&plan);
+    fft_close_planf(&planG);
+    EXPECT_EQ(1, 1);
+}
+
+TEST(TestSuiteName, BenchFFTW) {
+    auto result = fft_new_result();
+
+    int shape = 4096;
+    int batch = 20000;
+
+    std::vector<std::complex<float>> in(shape * batch, {1,1});
+    std::vector<std::complex<float>> out(in.size(), 0);
+
+    std::vector<std::complex<float>> inG(in.size(), 0);
+    std::vector<std::complex<float>> outG(in.size(), 0);
+
+    char name[50];
+
+    auto in_ptr = (ComplexF *)in.data();
+    auto out_ptr = (ComplexF *)out.data();
+    auto inG_ptr = (ComplexF *)inG.data();
+    auto outG_ptr = (ComplexF *)outG.data();
+
+    auto plan = FFTPlanFloat{
+            FFTPlanConfig{
+                    1,
+                    &shape,
+                    batch,
+                    FFT_SIGN::FORWARD,
+                    FFT_DEVICE::CPU,
+            }
+    };
+
+    fft_planf_init(
+            &plan,
+            in_ptr, in.size(),
+            out_ptr, out.size(), result);
+    handle_err(result);
+    std::cout<<"name: "<< name <<std::endl;
+
+    for (int j = 0; j < batch * shape; ++j) {
+        in[j] = {1, -1};
+    }
 
     for (int j = 0; j < in.size(); ++j) {
         inG[j] = in[j];
     }
 
     auto Time1=clock();
-    fft_planf_execute(&plan);
+    fft_planf_execute(&plan, result);
+    handle_err(result);
     auto Time2=clock();
     auto Time3 = Time2-Time1;
-    std::cout<<"cost 1:"<< Time3 <<std::endl;
-
-    Time1=clock();
-    fft_planf_execute(&planG);
-    Time2=clock();
-    Time3 = Time2-Time1;
-    std::cout<<"cost 2:"<<Time3<<std::endl;
+    std::cout<<"cost: "<< Time3 <<std::endl;
 
     fft_close_planf(&plan);
-    fft_close_planf(&planG);
     EXPECT_EQ(1, 1);
 }

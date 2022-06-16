@@ -203,8 +203,7 @@ private:
 #elif VKFFT_BACKEND == 3 // opencl
         easyfft::opencl::initDevice(&driver_device, configuration);
 #endif
-
-
+        this->device_name = driver_device.device_name;
         auto err = initializeVkFFT(vk_app.get(), configuration);
         handle_vkfft_err(err);
     }

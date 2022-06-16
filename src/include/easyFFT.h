@@ -35,6 +35,12 @@ enum FFT_ERROR_CODE {
     OUT_OF_DEVICE_MEMORY,
 };
 
+struct Result{
+    enum FFT_ERROR_CODE code;
+    char * msg;
+    int msg_size;
+};
+
 enum FFT_SIGN {
     FORWARD,
     BACKWARD,
@@ -67,14 +73,17 @@ struct FFTPlanDoubleR2C {
 typedef float ComplexF[2];
 typedef double ComplexD[2];
 
-EXT enum FFT_ERROR_CODE fft_planf_init(struct FFTPlanFloat *plan,
-                                      ComplexF *in_complex, uint64_t in_size,
-                                      ComplexF *out_complex, uint64_t out_size);
+EXT struct Result* fft_new_result();
+EXT void fft_release_result(struct Result *result);
 
-EXT enum FFT_ERROR_CODE fft_planf_device_name(struct FFTPlanFloat *plan, char *name, int size);
+EXT void fft_planf_init(struct FFTPlanFloat *plan,
+                                      ComplexF *in_complex, uint64_t in_size,
+                                      ComplexF *out_complex, uint64_t out_size, struct Result* result);
+
+EXT void fft_planf_device_name(struct FFTPlanFloat *plan, char *name, int size, struct Result* result);
 EXT void fft_close_planf(struct FFTPlanFloat *plan);
 EXT void fft_close_plan(struct FFTPlanDouble *plan);
-EXT enum FFT_ERROR_CODE fft_planf_execute(struct FFTPlanFloat *plan);
+EXT void fft_planf_execute(struct FFTPlanFloat *plan, struct Result* result);
 
 #ifdef __cplusplus
 }
