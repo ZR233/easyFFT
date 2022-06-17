@@ -188,8 +188,8 @@ TEST(TestAccuracy, TestGPUIFFT) {
 TEST(TestSuiteName, TestBench) {
     auto result = fft_new_result();
 
-    int shape = 1024;
-    int batch = 20000;
+    int shape = 1024 *512;
+    int batch = 1;
 
     std::vector<std::complex<float>> in(shape * batch, {1,1});
     std::vector<std::complex<float>> out(in.size(), 0);
