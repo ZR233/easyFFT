@@ -188,7 +188,7 @@ TEST(TestAccuracy, TestGPUIFFT) {
 TEST(TestSuiteName, TestBench) {
     auto result = fft_new_result();
 
-    int shape = 4096;
+    int shape = 1024;
     int batch = 20000;
 
     std::vector<std::complex<float>> in(shape * batch, {1,1});
@@ -250,14 +250,14 @@ TEST(TestSuiteName, TestBench) {
     handle_err(result);
     auto Time2=clock();
     auto Time3 = Time2-Time1;
-    std::cout<<"CPU cost: "<< Time3 <<std::endl;
+    std::cout<<"CPU cost: "<<(double)Time3 / CLOCKS_PER_SEC * 1000.0<<" ms" <<std::endl;
 
     Time1=clock();
     fft_planf_execute(&planG, result);
     handle_err(result);
     Time2=clock();
     Time3 = Time2-Time1;
-    std::cout<<"GPU cost: "<<Time3<<std::endl;
+    std::cout<<"GPU cost: "<<(double)Time3 / CLOCKS_PER_SEC * 1000.0<<" ms" <<std::endl;
 
     fft_close_planf(&plan);
     fft_close_planf(&planG);
@@ -267,7 +267,7 @@ TEST(TestSuiteName, TestBench) {
 TEST(TestSuiteName, BenchFFTW) {
     auto result = fft_new_result();
 
-    int shape = 4096;
+    int shape = 1024;
     int batch = 20000;
 
     std::vector<std::complex<float>> in(shape * batch, {1,1});
@@ -313,7 +313,7 @@ TEST(TestSuiteName, BenchFFTW) {
     handle_err(result);
     auto Time2=clock();
     auto Time3 = Time2-Time1;
-    std::cout<<"cost: "<< Time3 <<std::endl;
+    std::cout<<"cost: "<< (double)Time3 / CLOCKS_PER_SEC * 1000.0 << " ms" <<std::endl;
 
     fft_close_planf(&plan);
     EXPECT_EQ(1, 1);
