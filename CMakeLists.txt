@@ -5,9 +5,6 @@ set(CMAKE_CXX_STANDARD 11)
 option (BUILD_TESTS "Build tests" ON)
 option (ENABLE_CL "Use opencl" ON)
 if (ENABLE_CL)
-    if (NOT DEFINED CL_LIB_NAME)
-        SET(CL_LIB_NAME OpenCL)
-    endif ()
     add_compile_definitions(ENABLE_CL)
 endif ()
 
@@ -32,11 +29,18 @@ IF (UNIX)
 
         if (ENABLE_CL)
             SET(OpenCL_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/opencl)
-            SET(OpenCL_LIBRARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/${CMAKE_ANDROID_ARCH_ABI})
-            SET(OpenCL_LIBRARY ${CL_LIB_NAME})
+
+            if (NOT DEFINED OpenCL_LIBRARY_DIR)
+                SET(OpenCL_LIBRARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/${CMAKE_ANDROID_ARCH_ABI})
+            endif ()
+
+            if (NOT DEFINED OpenCL_LIBRARY)
+                SET(OpenCL_LIBRARY OpenCL)
+            endif ()
+
             message(STATUS OpenCL_LIBRARY_DIR=${OpenCL_LIBRARY_DIR})
             list(APPEND LIB_DIRS ${OpenCL_LIBRARY_DIR})
-            list(APPEND LIBS ${CL_LIB_NAME})
+            list(APPEND LIBS ${OpenCL_LIBRARY})
             list(APPEND INCLUDE_DIRS ${OpenCL_INCLUDE_DIR})
         endif ()
 
