@@ -118,25 +118,25 @@ IF(WIN32)
     add_dependencies(${PROJECT_NAME} fftw3 fftw3f)
     add_dependencies(${PROJECT_STATIC} fftw3 fftw3f)
     add_dependencies(${PROJECT_NAME} CopyFFTWRuntimeFiles)
-
+    add_dependencies(${PROJECT_STATIC} CopyFFTWRuntimeFiles)
 
     SET(FFT_DLL_DIR third_party/fftw-win)
     list(APPEND LIB_DIRS ${CMAKE_BINARY_DIR}/third_party/fftw-win)
     list(APPEND LIBS libfftw3-3 libfftw3f-3)
 
-    INSTALL(
-            FILES
-            ${FFT_DLL_DIR}/libfftw3-3.dll
-            ${FFT_DLL_DIR}/libfftw3f-3.dll
-            ${FFT_DLL_DIR}/libfftw3l-3.dll DESTINATION ${CMAKE_INSTALL_BINDIR}
-    )
-    SET(FFT_LIB_OUT_DIR ${CMAKE_BINARY_DIR}/third_party/fftw-win)
-    INSTALL(
-            FILES
-            ${FFT_LIB_OUT_DIR}/libfftw3-3.lib
-            ${FFT_LIB_OUT_DIR}/libfftw3f-3.lib
-            ${FFT_LIB_OUT_DIR}/libfftw3l-3.lib DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    )
+#    INSTALL(
+#            FILES
+#            ${FFT_DLL_DIR}/libfftw3-3.dll
+#            ${FFT_DLL_DIR}/libfftw3f-3.dll
+#            ${FFT_DLL_DIR}/libfftw3l-3.dll DESTINATION ${CMAKE_INSTALL_BINDIR}
+#    )
+#    SET(FFT_LIB_OUT_DIR ${CMAKE_BINARY_DIR}/third_party/fftw-win)
+#    INSTALL(
+#            FILES
+#            ${FFT_LIB_OUT_DIR}/libfftw3-3.lib
+#            ${FFT_LIB_OUT_DIR}/libfftw3f-3.lib
+#            ${FFT_LIB_OUT_DIR}/libfftw3l-3.lib DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#    )
 ENDIF()
 
 message(STATUS "INCLUDE_DIRS=${INCLUDE_DIRS}")
