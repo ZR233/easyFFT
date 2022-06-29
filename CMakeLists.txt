@@ -124,19 +124,19 @@ IF(WIN32)
     list(APPEND LIB_DIRS ${CMAKE_BINARY_DIR}/third_party/fftw-win)
     list(APPEND LIBS libfftw3-3 libfftw3f-3)
 
-#    INSTALL(
-#            FILES
-#            ${FFT_DLL_DIR}/libfftw3-3.dll
-#            ${FFT_DLL_DIR}/libfftw3f-3.dll
-#            ${FFT_DLL_DIR}/libfftw3l-3.dll DESTINATION ${CMAKE_INSTALL_BINDIR}
-#    )
-#    SET(FFT_LIB_OUT_DIR ${CMAKE_BINARY_DIR}/third_party/fftw-win)
-#    INSTALL(
-#            FILES
-#            ${FFT_LIB_OUT_DIR}/libfftw3-3.lib
-#            ${FFT_LIB_OUT_DIR}/libfftw3f-3.lib
-#            ${FFT_LIB_OUT_DIR}/libfftw3l-3.lib DESTINATION ${CMAKE_INSTALL_LIBDIR}
-#    )
+    INSTALL(
+            FILES
+            ${FFT_DLL_DIR}/libfftw3-3.dll
+            ${FFT_DLL_DIR}/libfftw3f-3.dll
+            ${FFT_DLL_DIR}/libfftw3l-3.dll DESTINATION bin
+    )
+    SET(FFT_LIB_OUT_DIR ${CMAKE_BINARY_DIR}/third_party/fftw-win)
+    INSTALL(
+            FILES
+            ${FFT_LIB_OUT_DIR}/libfftw3-3.lib
+            ${FFT_LIB_OUT_DIR}/libfftw3f-3.lib
+            ${FFT_LIB_OUT_DIR}/libfftw3l-3.lib DESTINATION lib
+    )
 ENDIF()
 
 message(STATUS "INCLUDE_DIRS=${INCLUDE_DIRS}")
@@ -154,7 +154,7 @@ target_link_libraries(${PROJECT_STATIC} PRIVATE ${LIBS})
 
 INSTALL(
         FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/include/easyFFT.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/include/easyFFT.h DESTINATION include
 )
 install(TARGETS ${PROJECT_NAME}
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
