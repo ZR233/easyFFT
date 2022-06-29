@@ -75,7 +75,7 @@ struct FFTPlanDoubleR2C {
 EXT struct Result* fft_new_result();
 EXT void fft_release_result(struct Result *result);
 
-EXT FFTPlanFloat* fft_planf_init(
+EXT struct FFTPlanFloat* fft_planf_init(
         struct FFTPlanConfig config,
         ComplexF *in_complex, uint64_t in_size,
         ComplexF *out_complex, uint64_t out_size,
