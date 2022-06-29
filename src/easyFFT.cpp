@@ -2,7 +2,8 @@
 // Created by zrufo on 2022-05-15.
 //
 #include "include/easyFFT.h"
-#include "PlanFloat.h"
+#include "PlanFFTWFloat.h"
+#include "PlanCLFloat.h"
 #include "Exception.hpp"
 #include <cstring>
 
@@ -26,42 +27,54 @@ void fft_release_result(struct Result *result){
 
 
 
-void fft_planf_init(
-        struct FFTPlanFloat *plan,
-                ComplexF* in_complex, uint64_t in_size,
-                ComplexF* out_complex, uint64_t out_size, struct Result* result){
+FFTPlanFloat* fft_planf_init(
+        struct FFTPlanConfig config,
+        ComplexF *in_complex, uint64_t in_size,
+        ComplexF *out_complex, uint64_t out_size,
+        struct Result* result){
 
     rest_result(result);
 
-    auto ptr = new PlanFloat(plan->config,
-                             in_complex, in_size,
-                             out_complex, out_size);
+    IPlan<ComplexF>* ptr;
 
     try{
-        ptr->init();
+        switch (config.device) {
+            case FFT_DEVICE::CPU:
+                ptr = new PlanFFTWFloat(config,
+                                        in_complex, in_size,
+                                        out_complex, out_size);
+                break;
+            case GPU:
+                ptr = new PlanCLFloat(config,
+                                        in_complex, in_size,
+                                        out_complex, out_size);
+                break;
+        }
+
+
     }catch (Exception &e){
         result->code = e.error_code;
         strncpy(result->msg, e.what(), result->msg_size);
     }
 
-    plan->ptr = ptr;
+    return (FFTPlanFloat*)ptr;
 }
 void fft_planf_device_name(FFTPlanFloat *plan, char *name, int size, struct Result* result){
-    auto p = (PlanFloat*)plan->ptr;
+    auto ptr = ( IPlan<ComplexF>*)plan;
     memset(name, '\0', size);
-    p->device_name.copy(name, size);
+    ptr->device_name.copy(name, size);
     rest_result(result);
 }
 
 void fft_close_planf(FFTPlanFloat *plan){
-    delete (PlanFloat*)plan->ptr;
+    delete (IPlan<ComplexF>*)plan;
 }
 
 void fft_planf_execute(FFTPlanFloat *plan, struct Result* result){
     rest_result(result);
 
     try{
-        auto ptr = (PlanFloat*)plan->ptr;
+        auto ptr = (IPlan<ComplexF>*)plan;
         ptr->execute();
     }catch (Exception &e){
         result->code = e.error_code;

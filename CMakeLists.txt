@@ -3,9 +3,18 @@ project(easyFFT)
 
 set(CMAKE_CXX_STANDARD 11)
 option (BUILD_TESTS "Build tests" ON)
+option (ENABLE_CL "Use opencl" ON)
+if (ENABLE_CL)
+    if (NOT DEFINED CL_LIB_NAME)
+        SET(CL_LIB_NAME OpenCL)
+    endif ()
+    add_compile_definitions(ENABLE_CL)
+endif ()
+
 set(BUILD_THIS_TESTS ${BUILD_TESTS})
 
 message(STATUS "BUILD_TESTS=${BUILD_THIS_TESTS}")
+message(STATUS "ENABLE_CL=${ENABLE_CL}")
 SET(LIBS)
 SET(INCLUDE_DIRS)
 SET(LIB_DIRS)
@@ -13,24 +22,34 @@ SET(PROJECT_STATIC ${PROJECT_NAME}_static)
 cmake_policy(SET CMP0077 NEW)
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
-list(APPEND INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/third_party/vkFFT)
-MESSAGE(STATUS "CMAKE_ROOT: ${CMAKE_ROOT}")
-list(APPEND INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/third_party/fftw-3.3.10/api)
+add_compile_definitions(CL_TARGET_OPENCL_VERSION=120)
+SET(BUILD_EXAMPLES OFF)
+
 
 IF (UNIX)
-    MESSAGE(STATUS "TARGET: UNIX ")
     IF (CMAKE_SYSTEM_NAME MATCHES "Android")
-#        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
-
         MESSAGE(STATUS "TARGET: Android ")
-        if (NOT DEFINED ANDROID_PLATFORM)
-            SET(ANDROID_PLATFORM 26)
+
+        if (ENABLE_CL)
+            SET(OpenCL_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/opencl)
+            SET(OpenCL_LIBRARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/${CMAKE_ANDROID_ARCH_ABI})
+            SET(OpenCL_LIBRARY ${CL_LIB_NAME})
+            message(STATUS OpenCL_LIBRARY_DIR=${OpenCL_LIBRARY_DIR})
+            list(APPEND LIB_DIRS ${OpenCL_LIBRARY_DIR})
+            list(APPEND LIBS ${CL_LIB_NAME})
+            list(APPEND INCLUDE_DIRS ${OpenCL_INCLUDE_DIR})
         endif ()
 
+#        if (NOT DEFINED ANDROID_PLATFORM)
+#            SET(ANDROID_PLATFORM 26)
+#        endif ()
+        message(STATUS "ARCH_ABI=${CMAKE_ANDROID_ARCH_ABI}")
         message(STATUS "ANDROID_PLATFORM=${ANDROID_PLATFORM}")
-#        SET(ENABLE_OPENMP ON)
-
+    ELSE()
+        MESSAGE(STATUS "TARGET: UNIX")
     ENDIF()
+
+    list(APPEND INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/third_party/fftw-3.3.10/api)
 
     SET(BUILD_TESTS OFF)
     SET(ANDROID_STL c++_static)
@@ -43,37 +62,34 @@ IF (UNIX)
     add_subdirectory("third_party/fftw-3.3.10/" "third_party/fftwf-3.3.10/")
 
     list(APPEND LIBS fftw3 fftw3f)
+
+    if (ENABLE_CL)
+        add_subdirectory("third_party/clfft")
+        list(APPEND INCLUDE_DIRS ${CMAKE_BINARY_DIR}/third_party/clfft/include)
+        list(APPEND INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/third_party/clfft/include)
+        list(APPEND LIBS clFFT)
+    endif ()
+
 ELSEIF(WIN32)
     MESSAGE(STATUS "TARGET: WIN32")
+
+
+    if (ENABLE_CL)
+        find_package(clFFT CONFIG REQUIRED)
+        list(APPEND LIBS clFFT)
+    endif ()
+
 ENDIF()
+
 
 MESSAGE(STATUS "CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}")
 
 SET(BUILD_EXTERNAL OFF)
-find_package(OpenCL)
-find_package(Vulkan)
 
+find_package(OpenCL)
 
 message(STATUS "OpenCL=${OpenCL_FOUND}")
-message(STATUS "Vulkan=${Vulkan_FOUND}")
 
-
-if (Vulkan_FOUND)
-    SET(VKFFT_BACKEND_BK 0)
-elseif(OpenCL_FOUND)
-    SET(VKFFT_BACKEND_BK 3)
-else()
-    message(FATAL_ERROR "No OpenCL or Vulkan")
-endif()
-
-
-
-if (NOT DEFINED VKFFT_BACKEND)
-    SET(VKFFT_BACKEND ${VKFFT_BACKEND_BK})
-endif ()
-
-message(STATUS "VKFFT_BACKEND=${VKFFT_BACKEND}")
-add_definitions(-DVKFFT_BACKEND=${VKFFT_BACKEND})
 
 message(STATUS "CMAKE_INSTALL_BINDIR=${CMAKE_INSTALL_BINDIR}")
 
@@ -81,47 +97,18 @@ aux_source_directory(./src SRC_EASY_FFT)
 add_library(${PROJECT_STATIC} STATIC ${SRC_EASY_FFT})
 add_library(${PROJECT_NAME} SHARED ${SRC_EASY_FFT})
 
-
-if (${VKFFT_BACKEND} EQUAL 0)
-    if(NOT ${Vulkan_FOUND})
-        message(FATAL_ERROR "Vulkan not Found")
-    endif()
-    set(BUILD_EXTERNAL OFF)
-
-    list(APPEND LIBS Vulkan::Vulkan SPIRV glslang)
-    list(APPEND INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/third_party/glslang-master-tot/glslang/Include/)
-    #    target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/glslang-master-tot/glslang/Include/)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/third_party/glslang-master-tot)
-
-    INSTALL(
-            FILES
-            ${Vulkan_LIBRARIES}
-            DESTINATION ${CMAKE_INSTALL_LIBDIR})
-
-endif ()
-
-if (${VKFFT_BACKEND} EQUAL 3)
-    if(NOT ${OpenCL_FOUND})
-        message(FATAL_ERROR "OpenCL not Found")
-    endif()
-    list(APPEND INCLUDE_DIRS ${OpenCL_INCLUDE_DIRS})
-    #    target_include_directories(${PROJECT_NAME} PUBLIC OpenCL_INCLUDE_DIRS)
-    list(APPEND LIBS OpenCL::OpenCL)
-    message(STATUS "OpenCL_LIBRARIES=${OpenCL_LIBRARIES}")
-#    INSTALL(
-#            FILES
-#            ${OpenCL_LIBRARIES}
-#            DESTINATION ${CMAKE_INSTALL_LIBDIR})
-
-endif ()
-
 IF(WIN32)
+#    add_subdirectory("third_party/fftw-win")
+#    add_dependencies(${PROJECT_NAME} fftw3 fftw3f fftw3l)
+#    SET(FFT_DLL_DIR third_party/fftw-win)
+#    list(APPEND LIB_DIRS ${CMAKE_BINARY_DIR}/third_party/fftw-win)
+#    list(APPEND LIBS libfftw3-3 libfftw3f-3 libfftw3l-3)
     add_subdirectory("third_party/fftw-win")
-    add_dependencies(${PROJECT_NAME} fftw3 fftw3f fftw3l)
+    add_dependencies(${PROJECT_NAME} fftw3 fftw3f)
+    add_dependencies(${PROJECT_STATIC} fftw3 fftw3f)
     SET(FFT_DLL_DIR third_party/fftw-win)
     list(APPEND LIB_DIRS ${CMAKE_BINARY_DIR}/third_party/fftw-win)
-    list(APPEND LIBS libfftw3-3 libfftw3f-3 libfftw3l-3)
-
+    list(APPEND LIBS libfftw3-3 libfftw3f-3)
 
     INSTALL(
             FILES
@@ -140,7 +127,7 @@ ENDIF()
 
 message(STATUS "INCLUDE_DIRS=${INCLUDE_DIRS}")
 message(STATUS "LIB_DIRS=${LIB_DIRS}")
-target_link_directories(${PROJECT_NAME} PUBLIC ${LIB_DIRS})
+target_link_directories(${PROJECT_NAME} PRIVATE ${LIB_DIRS})
 target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDE_DIRS})
 message(STATUS "LIBS: ${LIBS}")
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBS})
@@ -148,7 +135,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBS})
 #target_link_directories(${PROJECT_STATIC} PUBLIC ${LIB_DIRS})
 link_directories( ${LIB_DIRS})
 target_include_directories(${PROJECT_STATIC} PRIVATE ${INCLUDE_DIRS})
-target_link_libraries(${PROJECT_STATIC} PUBLIC ${LIBS})
+target_link_libraries(${PROJECT_STATIC} PRIVATE ${LIBS})
 #link_libraries(${PROJECT_STATIC} PUBLIC ${LIBS})
 
 INSTALL(

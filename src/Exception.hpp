@@ -2,7 +2,7 @@
 #define Exception_HPP
 
 #include "include/easyFFT.h"
-#include "vkFFT.h"
+
 #include <string>
 #include <stdexcept>
 
@@ -17,17 +17,17 @@ public:
 };
 
 
-static void handle_vkfft_err(enum VkFFTResult err){
-
-    switch (err) {
-        case VKFFT_SUCCESS:
-            return;
-        case VKFFT_ERROR_MALLOC_FAILED:
-            throw Exception("", FFT_ERROR_CODE::MALLOC_FAILED);
-        default:
-            std::stringstream ss;
-            ss << "(" << err << ")";
-            throw Exception(ss.str().c_str(), FFT_ERROR_CODE::VKFFT);
-    }
-}
+//static void handle_vkfft_err(enum VkFFTResult err){
+//
+//    switch (err) {
+//        case VKFFT_SUCCESS:
+//            return;
+//        case VKFFT_ERROR_MALLOC_FAILED:
+//            throw Exception("", FFT_ERROR_CODE::MALLOC_FAILED);
+//        default:
+//            std::stringstream ss;
+//            ss << "(" << err << ")";
+//            throw Exception(ss.str().c_str(), FFT_ERROR_CODE::VKFFT);
+//    }
+//}
 #endif
