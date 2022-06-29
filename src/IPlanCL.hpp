@@ -134,7 +134,6 @@ public:
     }
 
     virtual ~IPlanCL(){
-        std::cout<< "~IPlanCL" << std::endl;
 
         /* Release OpenCL memory objects. */
         clReleaseMemObject( bufX );
