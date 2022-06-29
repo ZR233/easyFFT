@@ -68,6 +68,7 @@ IF (UNIX)
     list(APPEND LIBS fftw3 fftw3f)
 
     if (ENABLE_CL)
+
         add_subdirectory("third_party/clfft")
         list(APPEND INCLUDE_DIRS ${CMAKE_BINARY_DIR}/third_party/clfft/include)
         list(APPEND INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/third_party/clfft/include)
@@ -76,10 +77,16 @@ IF (UNIX)
 
 ELSEIF(WIN32)
     MESSAGE(STATUS "TARGET: WIN32")
-
-
+    list(APPEND INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/third_party/fftw-win)
+    SET(BUILD_SHARED_LIBS OFF)
     if (ENABLE_CL)
-        find_package(clFFT CONFIG REQUIRED)
+
+        list(APPEND INCLUDE_DIRS ${OpenCL_INCLUDE_DIR})
+        list(APPEND LIB_DIRS ${OpenCL_LIBRARY_DIR})
+        add_subdirectory("third_party/clfft")
+        list(APPEND INCLUDE_DIRS ${CMAKE_BINARY_DIR}/third_party/clfft/include)
+        list(APPEND INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/third_party/clfft/include)
+#        find_package(clFFT CONFIG REQUIRED)
         list(APPEND LIBS clFFT)
     endif ()
 
@@ -110,6 +117,9 @@ IF(WIN32)
     add_subdirectory("third_party/fftw-win")
     add_dependencies(${PROJECT_NAME} fftw3 fftw3f)
     add_dependencies(${PROJECT_STATIC} fftw3 fftw3f)
+    add_dependencies(${PROJECT_NAME} CopyFFTWRuntimeFiles)
+
+
     SET(FFT_DLL_DIR third_party/fftw-win)
     list(APPEND LIB_DIRS ${CMAKE_BINARY_DIR}/third_party/fftw-win)
     list(APPEND LIBS libfftw3-3 libfftw3f-3)
