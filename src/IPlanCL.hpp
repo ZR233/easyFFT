@@ -63,7 +63,6 @@ public:
         }
 
 
-
         std::vector<std::shared_ptr<DeviceInfo>> device_infos;
         cl_uint platform_num;
         /* Setup OPEN_CL environment. */

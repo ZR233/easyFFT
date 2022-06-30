@@ -8,8 +8,8 @@
 #include <ctime>
 #include <iostream>
 #include <strstream>
-
-
+#include <chrono>
+#include <random>
 
 static void handle_err(struct Result *result){
     if (result->code != FFT_ERROR_CODE::OK){
@@ -18,14 +18,27 @@ static void handle_err(struct Result *result){
         throw std::runtime_error(ss.str());
     }
 }
+std::vector<std::complex<float>> new_data(int nFFT, int batches){
+    std::uniform_int_distribution<signed > u(0, 255);
+    std::default_random_engine e(clock());
+    std::vector<std::complex<float>> data(nFFT * batches);
+    for (auto & i : data) {
+        auto r = (float )u(e);
+        auto imag = (float )u(e);
+        i=std::complex<float>( r, imag);
+    }
 
+    return data;
+}
 
 
 
 TEST(TestAccuracy, TestGPUFFT) {
     auto result = fft_new_result();
-    int shape = 4;
-    int batch = 2;
+    int shape = 256;
+    int batch = 50000;
+
+    auto sample = new_data(shape, batch);
 
     std::vector<std::complex<float>> in(shape * batch, 0);
     std::vector<std::complex<float>> out(in.size(), 0);
@@ -43,7 +56,7 @@ TEST(TestAccuracy, TestGPUFFT) {
             FFTPlanConfig{
                     1,
                     &shape,
-                    2,
+                    batch,
                     FFT_SIGN::FORWARD,
                     FFT_DEVICE::CPU,
             },
@@ -54,75 +67,45 @@ TEST(TestAccuracy, TestGPUFFT) {
             FFTPlanConfig{
                     1,
                     &shape,
-                    2,
+                    batch,
                     FFT_SIGN::FORWARD,
                     FFT_DEVICE::GPU,
             },
             inG_ptr, in.size(),
             outG_ptr, out.size(), result);
 
-//    auto plan = FFTPlanFloat{
-//        FFTPlanConfig{
-//                1,
-//                &shape,
-//                2,
-//                FFT_SIGN::FORWARD,
-//                FFT_DEVICE::CPU,
-//        }
-//    };
-//    auto planG = FFTPlanFloat{
-//            FFTPlanConfig{
-//                    1,
-//                    &shape,
-//                    2,
-//                    FFT_SIGN::FORWARD,
-//                    FFT_DEVICE::GPU,
-//            }
-//    };
-//    fft_planf_init(
-//            &plan,
-//            in_ptr, in.size(),
-//            out_ptr, out.size(), result);
-//    handle_err(result);
-//
-//    fft_planf_init(
-//            &planG,
-//            inG_ptr, inG.size(),
-//            outG_ptr, outG.size(), result);
 
-//    handle_err(result);
-
-    int i = 0;
-
-    for (; i < shape; ++i) {
-        in[i] = {(float )i, (float )-i};
+    for (int i = 0; i < sample.size(); ++i) {
+        in[i] = sample[i];
     }
-    for (; i < shape * 2; ++i) {
-        in[i] = {(float )-i, (float )i};
-    }
+
 
     for (int j = 0; j < in.size(); ++j) {
         inG[j] = in[j];
     }
 
-
+    auto begin = std::chrono::system_clock::now();
     fft_planf_execute(plan, result);
     handle_err(result);
+    auto end = std::chrono::system_clock::now();
 
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
+    std::string name;
+    name.resize(100, '\0');
+    fft_planf_device_name(plan, &name[0], 100, result);
+
+    std::cout << name.c_str() << " cost: " << duration.count() << " ms"<< std::endl;
+
+    begin = std::chrono::system_clock::now();
     fft_planf_execute(planG, result);
+    end = std::chrono::system_clock::now();
     handle_err(result);
 
-    fft_planf_execute(plan, result);
-    handle_err(result);
+    duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
+    fft_planf_device_name(planG, &name[0], 100, result);
+    std::cout <<  name.c_str() << " cost: " << duration.count() << " ms" << std::endl;
 
-    fft_planf_execute(planG, result);
-    handle_err(result);
 
-    fft_planf_execute(plan, result);
-    handle_err(result);
-
-    fft_planf_execute(planG, result);
-    handle_err(result);
 
     for (int j = 0; j < out.size(); ++j) {
         auto fftw = out[j];
