@@ -7,9 +7,12 @@
 #include "clFFT.h"
 #endif
 #include "Exception.hpp"
+#include <memory>
+
 #ifdef ENABLE_CL
 #include <iostream>
 #include <sstream>
+
 
 static void handle_cl_err(cl_int err) {
     switch (err) {
@@ -101,6 +104,10 @@ public:
                 }
             }
         }
+        if (device_infos.empty()){
+            handle_cl_err(CL_DEVICE_NOT_FOUND);
+        }
+
 
         props[1] = (cl_context_properties)platform;
         ctx = clCreateContext( props, 1, &device, nullptr, nullptr, &err );
@@ -119,14 +126,20 @@ public:
 
         /* Create a default plan for a complex FFT. */
         err = clfftCreateDefaultPlan(&planHandle, ctx, dim, clLengths.data());
+        handle_cl_err(err);
         err = clfftSetPlanBatchSize(planHandle, config.number_batches);
+        handle_cl_err(err);
         /* Set plan parameters. */
         err = clfftSetPlanPrecision(planHandle, CLFFT_SINGLE);
+        handle_cl_err(err);
         err = clfftSetLayout(planHandle, CLFFT_COMPLEX_INTERLEAVED, CLFFT_COMPLEX_INTERLEAVED);
+        handle_cl_err(err);
         err = clfftSetResultLocation(planHandle, CLFFT_INPLACE);
+        handle_cl_err(err);
 
         /* Bake the plan. */
         err = clfftBakePlan(planHandle, 1, &queue, nullptr, nullptr);
+        handle_cl_err(err);
 #else
         throw Exception("not_support_cl", FFT_ERROR_CODE::NOT_SUPPORT_CL);
 #endif

@@ -2,20 +2,20 @@
 <project version="4">
   <component name="PublishConfigData" remoteFilesAllowedToDisappearOnAutoupload="false">
     <serverData>
-      <paths name="远程主机 (547114c9-a82c-467d-8729-c4bb0baf42b2)">
+      <paths name="Remote Host (1cb00ee0-ef68-4e12-9ae6-73b43003e4c6)">
         <serverdata>
           <mappings>
-            <mapping deploy="/tmp/tmp.EYj1uEywbV" local="$PROJECT_DIR$" />
+            <mapping deploy="/tmp/tmp.bV1aCeBinn" local="$PROJECT_DIR$" />
           </mappings>
           <excludedPaths>
-            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-vulkan-debug" />
-            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-vulkan-debug" />
-            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-cl-debug" />
-            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-cl-debug" />
-            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-release-wsl" />
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug-nocl" />
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug-1" />
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug-remote-host" />
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug-remote-host" />
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug-1" />
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug-nocl" />
             <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-android-arm64-v8a-release" />
             <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-android-arm64-v8a-release" />
-            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-release-wsl" />
           </excludedPaths>
         </serverdata>
       </paths>

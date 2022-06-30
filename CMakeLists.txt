@@ -60,11 +60,17 @@ IF (UNIX)
         MESSAGE(STATUS "TARGET: UNIX")
         if (ENABLE_CL)
             find_package(OpenCL REQUIRED)
+            list(APPEND LIB_DIRS ${OpenCL_LIBRARY_DIR})
+            list(APPEND LIBS ${OpenCL_LIBRARY})
+            list(APPEND INCLUDE_DIRS ${OpenCL_INCLUDE_DIR})
+
         endif()
+
+
     ENDIF()
 
     list(APPEND INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/third_party/fftw-3.3.10/api)
-
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
     SET(BUILD_TESTS OFF)
     SET(ANDROID_STL c++_static)
     SET(ENABLE_FLOAT OFF)
