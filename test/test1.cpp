@@ -62,6 +62,7 @@ TEST(TestAccuracy, TestGPUFFT) {
             },
             in_ptr, in.size(),
             out_ptr, out.size(), result);
+    handle_err(result);
 
     auto planG = fft_planf_init(
             FFTPlanConfig{
@@ -73,6 +74,8 @@ TEST(TestAccuracy, TestGPUFFT) {
             },
             inG_ptr, in.size(),
             outG_ptr, out.size(), result);
+
+    handle_err(result);
 
 
     for (int i = 0; i < sample.size(); ++i) {

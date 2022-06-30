@@ -55,6 +55,7 @@ FFTPlanFloat* fft_planf_init(
     }catch (Exception &e){
         result->code = e.error_code;
         strncpy(result->msg, e.what(), result->msg_size);
+        return nullptr;
     }
 
     return (FFTPlanFloat*)ptr;

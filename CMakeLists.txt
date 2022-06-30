@@ -1,11 +1,16 @@
 cmake_minimum_required(VERSION 3.21)
 project(easyFFT)
 
+cmake_policy(SET CMP0077 NEW)
+
 set(CMAKE_CXX_STANDARD 11)
 option (BUILD_TESTS "Build tests" ON)
 option (ENABLE_CL "Use opencl" ON)
 if (ENABLE_CL)
+    MESSAGE(STATUS "ENABLE_CL")
     add_compile_definitions(ENABLE_CL)
+
+
 endif ()
 
 set(BUILD_THIS_TESTS ${BUILD_TESTS})
@@ -16,7 +21,7 @@ SET(LIBS)
 SET(INCLUDE_DIRS)
 SET(LIB_DIRS)
 SET(PROJECT_STATIC ${PROJECT_NAME}_static)
-cmake_policy(SET CMP0077 NEW)
+
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
 add_compile_definitions(CL_TARGET_OPENCL_VERSION=120)
@@ -28,6 +33,8 @@ IF (UNIX)
         MESSAGE(STATUS "TARGET: Android ")
 
         if (ENABLE_CL)
+
+
             SET(OpenCL_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/opencl)
 
             if (NOT DEFINED OpenCL_LIBRARY_DIR)
@@ -51,6 +58,9 @@ IF (UNIX)
         message(STATUS "ANDROID_PLATFORM=${ANDROID_PLATFORM}")
     ELSE()
         MESSAGE(STATUS "TARGET: UNIX")
+        if (ENABLE_CL)
+            find_package(OpenCL REQUIRED)
+        endif()
     ENDIF()
 
     list(APPEND INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/third_party/fftw-3.3.10/api)
@@ -81,6 +91,8 @@ ELSEIF(WIN32)
     SET(BUILD_SHARED_LIBS OFF)
     if (ENABLE_CL)
 
+        find_package(OpenCL REQUIRED)
+
         list(APPEND INCLUDE_DIRS ${OpenCL_INCLUDE_DIR})
         list(APPEND LIB_DIRS ${OpenCL_LIBRARY_DIR})
         add_subdirectory("third_party/clfft")
@@ -97,9 +109,7 @@ MESSAGE(STATUS "CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}")
 
 SET(BUILD_EXTERNAL OFF)
 
-find_package(OpenCL)
 
-message(STATUS "OpenCL=${OpenCL_FOUND}")
 
 
 message(STATUS "CMAKE_INSTALL_BINDIR=${CMAKE_INSTALL_BINDIR}")

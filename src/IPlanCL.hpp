@@ -133,7 +133,7 @@ public:
     }
 
     virtual ~IPlanCL(){
-
+#ifdef ENABLE_CL
         /* Release OpenCL memory objects. */
         clReleaseMemObject( bufX );
 
@@ -146,9 +146,13 @@ public:
         /* Release OpenCL working objects. */
         clReleaseCommandQueue( queue );
         clReleaseContext( ctx );
+#endif
+
     };
 
     void execute() override {
+
+#ifdef ENABLE_CL
         auto err = clEnqueueWriteBuffer( queue, bufX, CL_TRUE, 0,
                                     byte_size, this->data_in, 0, NULL, NULL );
         handle_cl_err(err);
@@ -176,10 +180,11 @@ public:
         err = clEnqueueReadBuffer( queue, bufX, CL_TRUE, 0, byte_size,
                                    this->data_out, 0, NULL, NULL );
         handle_cl_err(err);
-
+#endif
     }
 
 protected:
+#ifdef ENABLE_CL
     cl_platform_id platform = nullptr;
     cl_device_id device = nullptr;
     cl_context_properties props[3] = { CL_CONTEXT_PLATFORM, 0, 0 };
@@ -187,6 +192,7 @@ protected:
     cl_command_queue queue = nullptr;
     cl_mem bufX={};
     clfftPlanHandle planHandle={};
+
 
 private:
     size_t byte_size=0;
@@ -203,6 +209,8 @@ private:
 
         return info;
     }
+
+#endif
 };
 
 
